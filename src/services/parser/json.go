@@ -3,18 +3,15 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
-type Parser struct {
-	Writer  http.ResponseWriter
-	Request *http.Request
-}
-
-func (p Parser) WriteJSON(status int, v any) error {
+func (p Parser) WriteJSON(status int, v any) {
 	p.Writer.Header().Add("Content-Type", "application/json")
 	p.Writer.WriteHeader(status)
-	return json.NewEncoder(p.Writer).Encode(v)
+	e := json.NewEncoder(p.Writer).Encode(v)
+	if e != nil {
+		fmt.Printf("Could not write: \n%v\n", e)
+	}
 }
 
 func (p Parser) ReadJSON(payload any) error {
@@ -29,9 +26,5 @@ func messageToJson(message string) map[string]string {
 }
 
 func (p Parser) WriteString(status int, message string) {
-	e := p.WriteJSON(status, messageToJson(message))
-	if e != nil {
-		fmt.Printf("Could not write error: \n%v\n", e)
-	}
+	p.WriteJSON(status, messageToJson(message))
 }
-
