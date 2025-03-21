@@ -11,7 +11,7 @@ import (
 
 var secretKey = "mysecretkey"
 
-func (p Parser) WriteJWTCookie(response models.AuthModel) {
+func (p Parser) WriteJWTCookie(response models.UserResponse) {
 	cookie := http.Cookie{}
 	cookie.Name = "JWT"
 	cookie.Value = generateJWT(response)
@@ -22,7 +22,7 @@ func (p Parser) WriteJWTCookie(response models.AuthModel) {
 	http.SetCookie(p.Writer, &cookie)
 }
 
-func (p Parser) ReadJWTCookie(request *models.AuthModel) error {
+func (p Parser) ReadJWTCookie(request *models.UserResponse) error {
 	cookie, err := p.Request.Cookie("JWT")
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (p Parser) ReadJWTCookie(request *models.AuthModel) error {
 	return nil
 }
 
-func generateJWT(response models.AuthModel) string {
+func generateJWT(response models.UserResponse) string {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(10 * time.Minute).Unix()

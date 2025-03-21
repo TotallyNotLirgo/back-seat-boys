@@ -2,17 +2,17 @@ package users
 
 import (
 	"github.com/TotallyNotLirgo/back-seat-boys/src/models"
-	"time"
 )
 
-type ExampleDatabase struct {
-	userId   int64
-	email    string
-	password string
-	role     string
+type TestDatabase struct {
+	email     string
+	password  string
+	role      string
+	lastLogin int64
+	userId    int64
 }
 
-func (d ExampleDatabase) GetUserByCredentials(
+func (d TestDatabase) GetUserByCredentials(
 	email, password string,
 ) *models.UserResponse {
 	if d.email != email || d.password != password {
@@ -22,11 +22,11 @@ func (d ExampleDatabase) GetUserByCredentials(
 		UserId:    d.userId,
 		Role:      d.role,
 		Email:     d.email,
-		LastLogin: time.Now().Unix(),
+		LastLogin: d.lastLogin,
 	}
 	return &response
 }
-func (d ExampleDatabase) GetUserByEmail(email string) *models.UserResponse {
+func (d TestDatabase) GetUserByEmail(email string) *models.UserResponse {
 	if d.email != email {
 		return nil
 	}
@@ -34,12 +34,12 @@ func (d ExampleDatabase) GetUserByEmail(email string) *models.UserResponse {
 		UserId:    d.userId,
 		Role:      d.role,
 		Email:     d.email,
-		LastLogin: time.Now().Unix(),
+		LastLogin: d.lastLogin,
 	}
 	return &response
 }
 
-func (d *ExampleDatabase) CreateUser(
+func (d *TestDatabase) CreateUser(
 	user models.LoginRequest, role string,
 ) *models.UserResponse {
 	d.email = user.Email
@@ -49,7 +49,7 @@ func (d *ExampleDatabase) CreateUser(
 		UserId:    d.userId,
 		Role:      d.role,
 		Email:     d.email,
-		LastLogin: time.Now().Unix(),
+		LastLogin: d.lastLogin,
 	}
 	return &response
 }
