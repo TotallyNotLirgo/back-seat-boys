@@ -6,6 +6,7 @@ import (
 	database "github.com/TotallyNotLirgo/back-seat-boys/src/services/database"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Server struct {
@@ -14,8 +15,10 @@ type Server struct {
 
 func main() {
 	conn, err := gorm.Open(
-		sqlite.Open("test.db"),
-		&gorm.Config{},
+		sqlite.Open("main.db"),
+		&gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		},
 	)
 	if err != nil {
 		panic("failed to connect database")

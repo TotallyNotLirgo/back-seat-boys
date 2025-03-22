@@ -68,14 +68,14 @@ func TestLoginValidCredentialsWrites200(t *testing.T) {
 	if expected, got := models.Admin, result.Role; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(12), result.UserId; expected != got {
+	if expected, got := uint(12), result.UserId; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 	cookie := parser.cookie.(models.UserResponse)
 	if expected, got := models.Admin, cookie.Role; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(12), cookie.UserId; expected != got {
+	if expected, got := uint(12), cookie.UserId; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 }

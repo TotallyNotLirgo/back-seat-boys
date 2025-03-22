@@ -8,7 +8,7 @@ type TestDatabase struct {
 	email       string
 	password    string
 	role        string
-	userId      int64
+	userId      uint
 	createFails bool
 }
 
