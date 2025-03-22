@@ -8,11 +8,11 @@ import (
 
 func TestRegisterInvalidBodyWrites422(t *testing.T) {
 	parser := TestParser{
-		request: nil,
-		error:   fmt.Errorf("Invalid body"),
+		request:   nil,
+		readError: fmt.Errorf("Invalid body"),
 	}
 	database := TestDatabase{}
-	Login(&parser, database)
+	Register(&parser, &database)
 
 	if expected, got := 422, parser.status; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
@@ -77,7 +77,7 @@ func TestRegisterDatabaseReturns500(t *testing.T) {
 			Password: "admin",
 		},
 	}
-	database := TestDatabase{userId: 12, createFails: true}
+	database := TestDatabase{userId: 12, requestFails: true}
 	Register(&parser, &database)
 
 	if expected, got := 500, parser.status; expected != got {

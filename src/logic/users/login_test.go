@@ -8,8 +8,8 @@ import (
 
 func TestLoginInvalidBodyWrites422(t *testing.T) {
 	parser := TestParser{
-		request: nil,
-		error:   fmt.Errorf("Invalid body"),
+		request:   nil,
+		readError: fmt.Errorf("Invalid body"),
 	}
 	database := TestDatabase{}
 	Login(&parser, database)
@@ -51,10 +51,10 @@ func TestLoginValidCredentialsWrites200(t *testing.T) {
 		},
 	}
 	database := TestDatabase{
-		email:     "admin",
-		password:  "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-		role:      models.Admin,
-		userId:    12,
+		email:    "admin",
+		password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+		role:     models.Admin,
+		userId:   12,
 	}
 	Login(&parser, database)
 

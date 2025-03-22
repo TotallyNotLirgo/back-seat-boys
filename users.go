@@ -17,3 +17,9 @@ func (s Server) register(w http.ResponseWriter, r *http.Request) {
 	p := parser.Parser{Writer: w, Request: r}
 	users.Register(p, s.database)
 }
+
+func (s Server) update(w http.ResponseWriter, r *http.Request) {
+	s.logger.Info("Update")
+	p := parser.Parser{Writer: w, Request: r}
+	users.Update(p, s.database)
+}

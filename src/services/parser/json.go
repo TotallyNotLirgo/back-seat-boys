@@ -7,6 +7,10 @@ import (
 	"github.com/TotallyNotLirgo/back-seat-boys/src/services/log"
 )
 
+func (p Parser) ReadPath(key string) string {
+	return p.Request.PathValue(key)
+}
+
 func (p Parser) WriteJSON(status int, v any) {
 	logger := log.GetLogger("WriteJSON")
 	logger.Info("Writing JSON")
