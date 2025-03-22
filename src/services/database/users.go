@@ -32,7 +32,7 @@ func (d Database) GetUserByCredentials(
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    int64(user.Model.ID),
+		UserId:    user.Model.ID,
 		Role:      user.Role,
 		Email:     user.Email,
 	}
@@ -45,7 +45,7 @@ func (d Database) GetUserByEmail(email string) *models.UserResponse {
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    int64(user.Model.ID),
+		UserId:    user.Model.ID,
 		Role:      user.Role,
 		Email:     user.Email,
 	}
@@ -67,7 +67,7 @@ func (d *Database) CreateUser(
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    int64(model.Model.ID),
+		UserId:    model.Model.ID,
 		Role:      model.Role,
 		Email:     model.Email,
 	}

@@ -40,7 +40,7 @@ func (p Parser) ReadJWTCookie(request *models.UserResponse) error {
 	if !ok || !token.Valid {
 		return fmt.Errorf("unable to extract claims")
 	}
-	request.UserId = int64(claims["userId"].(float64))
+	request.UserId = uint(claims["userId"].(float64))
 	request.Role = claims["role"].(string)
 	return nil
 }

@@ -12,7 +12,7 @@ type LoginRequest struct {
 }
 
 type UserResponse struct {
-	UserId    int64 `json:"userId"`
+	UserId    uint `json:"userId"`
 	Email    string `json:"email"`
 	Role      string `json:"role"`
 }

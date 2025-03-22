@@ -65,7 +65,7 @@ func TestRegisterUserCreatedWrites200(t *testing.T) {
 	if expected, got := models.New, result.Role; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(12), result.UserId; expected != got {
+	if expected, got := uint(12), result.UserId; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 }
@@ -109,7 +109,7 @@ func TestLoginRegisteredUserWrites200(t *testing.T) {
 	if expected, got := models.New, result.Role; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(12), result.UserId; expected != got {
+	if expected, got := uint(12), result.UserId; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 }
