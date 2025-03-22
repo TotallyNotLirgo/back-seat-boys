@@ -33,5 +33,9 @@ func Register(parser RegisterParser, database RegisterDatabase) {
 	hash := sha256.Sum256([]byte(request.Password))
 	request.Password = fmt.Sprintf("%x", hash)
 	user = database.CreateUser(request, models.New)
+	if user == nil {
+		parser.WriteString(500, "Could not create user")
+		return
+	}
 	parser.WriteJSON(200, user)
 }

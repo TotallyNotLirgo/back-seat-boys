@@ -1,55 +1,75 @@
 package users
 
 import (
+	"errors"
+	"fmt"
 	"github.com/TotallyNotLirgo/back-seat-boys/src/models"
-	"time"
+	"gorm.io/gorm"
 )
 
-type ExampleDatabase struct {
-	userId   int64
-	email    string
-	password string
-	role     string
+type User struct {
+	gorm.Model
+	Email     string
+	Password  string
+	Role      string
 }
 
-func (d ExampleDatabase) GetUserByCredentials(
+type Database struct {
+	Connection *gorm.DB
+}
+
+func (d Database) GetUserByCredentials(
 	email, password string,
 ) *models.UserResponse {
-	if d.email != email || d.password != password {
+	var user User
+	result := d.Connection.First(
+		&user,
+		"email = ? AND password = ?",
+		email,
+		password,
+	)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    d.userId,
-		Role:      d.role,
-		Email:     d.email,
-		LastLogin: time.Now().Unix(),
+		UserId:    int64(user.Model.ID),
+		Role:      user.Role,
+		Email:     user.Email,
 	}
 	return &response
 }
-func (d ExampleDatabase) GetUserByEmail(email string) *models.UserResponse {
-	if d.email != email {
+func (d Database) GetUserByEmail(email string) *models.UserResponse {
+	var user User
+	result := d.Connection.First(&user, "email = ?", email)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    d.userId,
-		Role:      d.role,
-		Email:     d.email,
-		LastLogin: time.Now().Unix(),
+		UserId:    int64(user.Model.ID),
+		Role:      user.Role,
+		Email:     user.Email,
 	}
 	return &response
 }
 
-func (d *ExampleDatabase) CreateUser(
+func (d *Database) CreateUser(
 	user models.LoginRequest, role string,
 ) *models.UserResponse {
-	d.email = user.Email
-	d.password = user.Password
-	d.role = role
+	model := User{
+		Email: user.Email,
+		Password: user.Password,
+		Role: role,
+	}
+	result := d.Connection.Create(&model)
+
+	if result.Error != nil {
+		fmt.Printf("Creation failed: %v", result.Error.Error())
+		return nil
+	}
 	response := models.UserResponse{
-		UserId:    d.userId,
-		Role:      d.role,
-		Email:     d.email,
-		LastLogin: time.Now().Unix(),
+		UserId:    int64(model.Model.ID),
+		Role:      model.Role,
+		Email:     model.Email,
 	}
 	return &response
 }

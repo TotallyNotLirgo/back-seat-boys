@@ -54,7 +54,6 @@ func TestLoginValidCredentialsWrites200(t *testing.T) {
 		email:     "admin",
 		password:  "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
 		role:      models.Admin,
-		lastLogin: 1234,
 		userId:    12,
 	}
 	Login(&parser, database)
@@ -69,17 +68,11 @@ func TestLoginValidCredentialsWrites200(t *testing.T) {
 	if expected, got := models.Admin, result.Role; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(1234), result.LastLogin; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
 	if expected, got := int64(12), result.UserId; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 	cookie := parser.cookie.(models.UserResponse)
 	if expected, got := models.Admin, cookie.Role; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := int64(1234), cookie.LastLogin; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 	if expected, got := int64(12), cookie.UserId; expected != got {

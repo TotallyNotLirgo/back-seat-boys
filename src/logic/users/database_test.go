@@ -5,11 +5,11 @@ import (
 )
 
 type TestDatabase struct {
-	email     string
-	password  string
-	role      string
-	lastLogin int64
-	userId    int64
+	email       string
+	password    string
+	role        string
+	userId      int64
+	createFails bool
 }
 
 func (d TestDatabase) GetUserByCredentials(
@@ -19,10 +19,9 @@ func (d TestDatabase) GetUserByCredentials(
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    d.userId,
-		Role:      d.role,
-		Email:     d.email,
-		LastLogin: d.lastLogin,
+		UserId: d.userId,
+		Role:   d.role,
+		Email:  d.email,
 	}
 	return &response
 }
@@ -31,10 +30,9 @@ func (d TestDatabase) GetUserByEmail(email string) *models.UserResponse {
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    d.userId,
-		Role:      d.role,
-		Email:     d.email,
-		LastLogin: d.lastLogin,
+		UserId: d.userId,
+		Role:   d.role,
+		Email:  d.email,
 	}
 	return &response
 }
@@ -46,10 +44,12 @@ func (d *TestDatabase) CreateUser(
 	d.password = user.Password
 	d.role = role
 	response := models.UserResponse{
-		UserId:    d.userId,
-		Role:      d.role,
-		Email:     d.email,
-		LastLogin: d.lastLogin,
+		UserId: d.userId,
+		Role:   d.role,
+		Email:  d.email,
+	}
+	if d.createFails {
+		return nil
 	}
 	return &response
 }

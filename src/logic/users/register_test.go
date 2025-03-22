@@ -30,11 +30,10 @@ func TestRegisterUserEmailExistsWrites409(t *testing.T) {
 		},
 	}
 	database := TestDatabase{
-		email:     "admin",
-		password:  "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-		role:      models.Admin,
-		lastLogin: 1234,
-		userId:    12,
+		email:    "admin",
+		password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+		role:     models.Admin,
+		userId:   12,
 	}
 	Register(&parser, &database)
 
@@ -53,10 +52,7 @@ func TestRegisterUserCreatedWrites200(t *testing.T) {
 			Password: "admin",
 		},
 	}
-	database := TestDatabase{
-		userId:    12,
-		lastLogin: 1234,
-	}
+	database := TestDatabase{userId: 12}
 	Register(&parser, &database)
 
 	if expected, got := 200, parser.status; expected != got {
@@ -69,10 +65,25 @@ func TestRegisterUserCreatedWrites200(t *testing.T) {
 	if expected, got := models.New, result.Role; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(1234), result.LastLogin; expected != got {
+	if expected, got := int64(12), result.UserId; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
-	if expected, got := int64(12), result.UserId; expected != got {
+}
+
+func TestRegisterDatabaseReturns500(t *testing.T) {
+	parser := TestParser{
+		request: models.LoginRequest{
+			Email:    "admin",
+			Password: "admin",
+		},
+	}
+	database := TestDatabase{userId: 12, createFails: true}
+	Register(&parser, &database)
+
+	if expected, got := 500, parser.status; expected != got {
+		t.Fatalf("Expected %v, got %v", expected, got)
+	}
+	if expected, got := "Could not create user", parser.result; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 }
@@ -84,10 +95,7 @@ func TestLoginRegisteredUserWrites200(t *testing.T) {
 			Password: "admin",
 		},
 	}
-	database := TestDatabase{
-		userId:    12,
-		lastLogin: 1234,
-	}
+	database := TestDatabase{userId: 12}
 	Register(&parser, &database)
 	Login(&parser, &database)
 
@@ -99,9 +107,6 @@ func TestLoginRegisteredUserWrites200(t *testing.T) {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 	if expected, got := models.New, result.Role; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := int64(1234), result.LastLogin; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 	if expected, got := int64(12), result.UserId; expected != got {

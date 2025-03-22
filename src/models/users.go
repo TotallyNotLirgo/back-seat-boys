@@ -15,5 +15,4 @@ type UserResponse struct {
 	UserId    int64 `json:"userId"`
 	Email    string `json:"email"`
 	Role      string `json:"role"`
-	LastLogin int64 `json:"lastLogin"`
 }

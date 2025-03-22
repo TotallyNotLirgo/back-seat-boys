@@ -42,13 +42,6 @@ func (p Parser) ReadJWTCookie(request *models.UserResponse) error {
 	}
 	request.UserId = int64(claims["userId"].(float64))
 	request.Role = claims["role"].(string)
-	request.LastLogin = int64(claims["lastLogin"].(float64))
-	fmt.Printf(
-		"%v, %v, %v",
-		request.UserId,
-		request.Role,
-		request.LastLogin,
-		)
 	return nil
 }
 
@@ -59,7 +52,6 @@ func generateJWT(response models.UserResponse) string {
 	claims["authorized"] = true
 	claims["userId"] = response.UserId
 	claims["role"] = response.Role
-	claims["lastLogin"] = response.LastLogin
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		fmt.Printf("could not encode: \n%v\n", err)
