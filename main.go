@@ -3,7 +3,7 @@ package main
 import (
 	http "net/http"
 
-	database "github.com/TotallyNotLirgo/back-seat-boys/src/services/database"
+	"github.com/TotallyNotLirgo/back-seat-boys/src/services/database/users"
 	"github.com/TotallyNotLirgo/back-seat-boys/src/services/log"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -11,7 +11,7 @@ import (
 )
 
 type Server struct {
-	database *database.Database
+	database *users.Database
 	logger   log.Logger
 }
 
@@ -28,12 +28,18 @@ func main() {
 		panic("failed to connect database")
 	}
 	logger.Info("Connected to the DB")
-	conn.AutoMigrate(&database.User{})
+	conn.AutoMigrate(&users.User{})
 	server := Server{
-		database: &database.Database{Connection: conn},
+		database: &users.Database{Connection: conn},
 		logger:   logger,
 	}
 	http.HandleFunc("POST /api/login", server.login)
 	http.HandleFunc("POST /api/register", server.register)
-	http.ListenAndServe(":8090", nil)
+	http.HandleFunc("PATCH /api/users/{id}", server.update)
+	http.ListenAndServeTLS(
+		":8090",
+		"cert/localhost.crt",
+		"cert/localhost.key",
+		nil,
+	)
 }

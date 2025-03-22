@@ -25,7 +25,7 @@ func TestUpdateInvalidBodyWrites422(t *testing.T) {
 func TestUpdateJWTErrorWrites401(t *testing.T) {
 	parser := TestParser{
 		request:      models.UserUpdateRequest{},
-		pathKey:    "id",
+		pathKey:      "id",
 		pathParam:    "12",
 		readJWTError: true,
 	}
@@ -191,6 +191,69 @@ func TestUpdateHighRoleHighRoleWrites403(t *testing.T) {
 	}
 	errMsg := "Cannot change permissions of another admin"
 	if expected, got := errMsg, parser.result; expected != got {
+		t.Fatalf("Expected %v, got %v", expected, got)
+	}
+}
+
+func TestUpdateHighInvalidRoleWrites422(t *testing.T) {
+	parser := TestParser{
+		request: models.UserUpdateRequest{
+			Email:    "admin new",
+			Password: "admin new",
+			Role:     "invalid",
+		},
+		access: models.UserResponse{
+			UserId: 11,
+			Email:  "user",
+			Role:   models.Admin,
+		},
+		pathKey:   "id",
+		pathParam: "12",
+	}
+	database := TestDatabase{
+		email:    "user",
+		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
+		role:     models.User,
+		userId:   12,
+	}
+	Update(&parser, &database)
+
+	if expected, got := 422, parser.status; expected != got {
+		t.Fatalf("Expected %v, got %v", expected, got)
+	}
+	if expected, got := "Invalid role", parser.result; expected != got {
+		t.Fatalf("Expected %v, got %v", expected, got)
+	}
+}
+
+func TestUpdateEmailExistsWrites409(t *testing.T) {
+	parser := TestParser{
+		request: models.UserUpdateRequest{
+			Email:    "user",
+			Password: "admin",
+			Role:     models.Admin,
+		},
+		access: models.UserResponse{
+			UserId: 12,
+			Email:  "admin",
+			Role:   models.Admin,
+		},
+		pathKey:   "id",
+		pathParam: "12",
+	}
+	database := TestDatabase{
+		email:    "user",
+		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
+		role:     models.User,
+		userId:   12,
+		getUserId: 11,
+	}
+	Update(&parser, &database)
+
+	if expected, got := 409, parser.status; expected != got {
+		t.Fatalf("Expected %v, got %v", expected, got)
+	}
+	if expected, got := "Email taken", parser.result; expected != got {
 		t.Fatalf("Expected %v, got %v", expected, got)
 	}
 }

@@ -6,14 +6,14 @@ import (
 )
 
 type TestParser struct {
-	request   any
-	readError error
-	result    any
-	status    int
-	cookie    any
-	pathKey string
-	pathParam string
-	access    models.UserResponse
+	request      any
+	readError    error
+	result       any
+	status       int
+	cookie       any
+	pathKey      string
+	pathParam    string
+	access       models.UserResponse
 	readJWTError bool
 }
 

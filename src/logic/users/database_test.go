@@ -5,10 +5,11 @@ import (
 )
 
 type TestDatabase struct {
-	email       string
-	password    string
-	role        string
-	userId      uint
+	email        string
+	password     string
+	role         string
+	userId       uint
+	getUserId    uint
 	requestFails bool
 }
 
@@ -29,16 +30,22 @@ func (d TestDatabase) GetUserByEmail(email string) *models.UserResponse {
 	if d.email != email {
 		return nil
 	}
+	if d.getUserId == 0 {
+		d.getUserId = d.userId
+	}
 	response := models.UserResponse{
-		UserId: d.userId,
+		UserId: d.getUserId,
 		Role:   d.role,
 		Email:  d.email,
 	}
 	return &response
 }
 func (d TestDatabase) GetUser(id uint) *models.UserResponse {
+	if d.getUserId == 0 {
+		d.getUserId = d.userId
+	}
 	response := models.UserResponse{
-		UserId: d.userId,
+		UserId: d.getUserId,
 		Role:   d.role,
 		Email:  d.email,
 	}

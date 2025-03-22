@@ -8,8 +8,8 @@ import (
 
 func TestRegisterInvalidBodyWrites422(t *testing.T) {
 	parser := TestParser{
-		request: nil,
-		readError:   fmt.Errorf("Invalid body"),
+		request:   nil,
+		readError: fmt.Errorf("Invalid body"),
 	}
 	database := TestDatabase{}
 	Register(&parser, &database)

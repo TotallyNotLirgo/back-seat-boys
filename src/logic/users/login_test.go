@@ -8,8 +8,8 @@ import (
 
 func TestLoginInvalidBodyWrites422(t *testing.T) {
 	parser := TestParser{
-		request: nil,
-		readError:   fmt.Errorf("Invalid body"),
+		request:   nil,
+		readError: fmt.Errorf("Invalid body"),
 	}
 	database := TestDatabase{}
 	Login(&parser, database)

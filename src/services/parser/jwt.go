@@ -25,7 +25,7 @@ func (p Parser) WriteJWTCookie(response models.UserResponse) {
 	}
 	cookie.Value = value
 	cookie.Expires = time.Now().Add(365 * 24 * time.Hour)
-	cookie.Secure = false
+	cookie.Secure = true
 	cookie.HttpOnly = true
 	cookie.Path = "/"
 	logger.Info("Setting cookie")
@@ -35,11 +35,13 @@ func (p Parser) WriteJWTCookie(response models.UserResponse) {
 func (p Parser) ReadJWTCookie(request *models.UserResponse) {
 	logger := log.GetLogger("ReadJWTCookie")
 	logger.Info("Reading JWT")
+	logger.Info(fmt.Sprint(p.Request.Cookies()))
 	cookie, err := p.Request.Cookie("JWT")
 	if err != nil {
 		logger.Error(err.Error())
 		return
 	}
+	logger.Info("Parsing JWT")
 	token, err := jwt.Parse(
 		cookie.Value,
 		func(token *jwt.Token) (interface{}, error) {
@@ -50,6 +52,7 @@ func (p Parser) ReadJWTCookie(request *models.UserResponse) {
 		logger.Error(err.Error())
 		return
 	}
+	logger.Info("Retreiving claims")
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		logger.Error("Unable to extract claims")
@@ -57,6 +60,7 @@ func (p Parser) ReadJWTCookie(request *models.UserResponse) {
 	}
 	request.UserId = uint(claims["userId"].(float64))
 	request.Role = claims["role"].(string)
+	request.Email = claims["email"].(string)
 	logger.Info("Extracted user %v (%v)", request.UserId, request.Role)
 }
 
@@ -66,6 +70,7 @@ func generateJWT(response models.UserResponse) (string, error) {
 	claims["exp"] = time.Now().Add(10 * time.Minute).Unix()
 	claims["authorized"] = true
 	claims["userId"] = response.UserId
+	claims["email"] = response.Email
 	claims["role"] = response.Role
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
