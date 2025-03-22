@@ -71,8 +71,8 @@ func (l *Logger) Critical(message string, a ...any) {
 
 func (l *Logger) log(message, level, color string) {
 	name := colorize(l.name, White)
-    levelOffset := 20 - len(l.name)
-    level = strings.Repeat(" ", levelOffset) + level
+	levelOffset := 20 - len(l.name)
+	level = strings.Repeat(" ", levelOffset) + level
 	level = colorize(level, color)
 	hash := colorize(fmt.Sprintf("%x", l.hash), White)
 	now := time.Now()

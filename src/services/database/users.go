@@ -11,9 +11,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Email     string
-	Password  string
-	Role      string
+	Email    string
+	Password string
+	Role     string
 }
 
 type Database struct {
@@ -37,9 +37,9 @@ func (d Database) GetUserByCredentials(
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    user.Model.ID,
-		Role:      user.Role,
-		Email:     user.Email,
+		UserId: user.Model.ID,
+		Role:   user.Role,
+		Email:  user.Email,
 	}
 	logger.Info("Returning user %v", user.Model.ID)
 	return &response
@@ -54,9 +54,9 @@ func (d Database) GetUserByEmail(email string) *models.UserResponse {
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    user.Model.ID,
-		Role:      user.Role,
-		Email:     user.Email,
+		UserId: user.Model.ID,
+		Role:   user.Role,
+		Email:  user.Email,
 	}
 	logger.Info("Returning user %v", user.Model.ID)
 	return &response
@@ -68,9 +68,9 @@ func (d *Database) CreateUser(
 	logger := log.GetLogger("CreateUser")
 	logger.Info("Creating user %v", user.Email)
 	model := User{
-		Email: user.Email,
+		Email:    user.Email,
 		Password: user.Password,
-		Role: role,
+		Role:     role,
 	}
 	result := d.Connection.Create(&model)
 
@@ -80,9 +80,9 @@ func (d *Database) CreateUser(
 		return nil
 	}
 	response := models.UserResponse{
-		UserId:    model.Model.ID,
-		Role:      model.Role,
-		Email:     model.Email,
+		UserId: model.Model.ID,
+		Role:   model.Role,
+		Email:  model.Email,
 	}
 	logger.Info("Returning user %v", model.Model.ID)
 	return &response

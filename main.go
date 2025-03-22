@@ -12,7 +12,7 @@ import (
 
 type Server struct {
 	database *database.Database
-	logger log.Logger
+	logger   log.Logger
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 	conn.AutoMigrate(&database.User{})
 	server := Server{
 		database: &database.Database{Connection: conn},
-		logger: logger,
+		logger:   logger,
 	}
 	http.HandleFunc("POST /api/login", server.login)
 	http.HandleFunc("POST /api/register", server.register)
