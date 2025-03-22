@@ -6,26 +6,39 @@ import (
 	"time"
 
 	"github.com/TotallyNotLirgo/back-seat-boys/src/models"
+	"github.com/TotallyNotLirgo/back-seat-boys/src/services/log"
 	"github.com/golang-jwt/jwt"
 )
 
 var secretKey = "mysecretkey"
 
 func (p Parser) WriteJWTCookie(response models.UserResponse) {
+	logger := log.GetLogger("WriteJWTCookie")
+	logger.Info("Writing JWT")
 	cookie := http.Cookie{}
 	cookie.Name = "JWT"
-	cookie.Value = generateJWT(response)
+	logger.Info("Generating JWT")
+	value, err := generateJWT(response)
+	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
+	cookie.Value = value
 	cookie.Expires = time.Now().Add(365 * 24 * time.Hour)
 	cookie.Secure = false
 	cookie.HttpOnly = true
 	cookie.Path = "/"
+	logger.Info("Setting cookie")
 	http.SetCookie(p.Writer, &cookie)
 }
 
-func (p Parser) ReadJWTCookie(request *models.UserResponse) error {
+func (p Parser) ReadJWTCookie(request *models.UserResponse) {
+	logger := log.GetLogger("ReadJWTCookie")
+	logger.Info("Reading JWT")
 	cookie, err := p.Request.Cookie("JWT")
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		return
 	}
 	token, err := jwt.Parse(
 		cookie.Value,
@@ -34,18 +47,20 @@ func (p Parser) ReadJWTCookie(request *models.UserResponse) error {
 		},
 	)
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		return
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return fmt.Errorf("unable to extract claims")
+		logger.Error("Unable to extract claims")
+		return
 	}
 	request.UserId = uint(claims["userId"].(float64))
 	request.Role = claims["role"].(string)
-	return nil
+	logger.Info("Extracted user %v (%v)", request.UserId, request.Role)
 }
 
-func generateJWT(response models.UserResponse) string {
+func generateJWT(response models.UserResponse) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(10 * time.Minute).Unix()
@@ -54,8 +69,7 @@ func generateJWT(response models.UserResponse) string {
 	claims["role"] = response.Role
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
-		fmt.Printf("could not encode: \n%v\n", err)
-		return ""
+		return "", fmt.Errorf("could not encode: \n%v\n", err)
 	}
-	return tokenString
+	return tokenString, nil
 }
