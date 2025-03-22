@@ -3,7 +3,9 @@ package users
 import (
 	"errors"
 	"fmt"
+
 	"github.com/TotallyNotLirgo/back-seat-boys/src/models"
+	"github.com/TotallyNotLirgo/back-seat-boys/src/services/log"
 	"gorm.io/gorm"
 )
 
@@ -21,6 +23,8 @@ type Database struct {
 func (d Database) GetUserByCredentials(
 	email, password string,
 ) *models.UserResponse {
+	logger := log.GetLogger("GetUserByCredentials")
+	logger.Info("Fetching user %v", email)
 	var user User
 	result := d.Connection.First(
 		&user,
@@ -29,6 +33,7 @@ func (d Database) GetUserByCredentials(
 		password,
 	)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		logger.Warning("User not found")
 		return nil
 	}
 	response := models.UserResponse{
@@ -36,12 +41,16 @@ func (d Database) GetUserByCredentials(
 		Role:      user.Role,
 		Email:     user.Email,
 	}
+	logger.Info("Returning user %v", user.Model.ID)
 	return &response
 }
 func (d Database) GetUserByEmail(email string) *models.UserResponse {
+	logger := log.GetLogger("GetUserByEmail")
+	logger.Info("Fetching user %v", email)
 	var user User
 	result := d.Connection.First(&user, "email = ?", email)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		logger.Warning("User not found")
 		return nil
 	}
 	response := models.UserResponse{
@@ -49,12 +58,15 @@ func (d Database) GetUserByEmail(email string) *models.UserResponse {
 		Role:      user.Role,
 		Email:     user.Email,
 	}
+	logger.Info("Returning user %v", user.Model.ID)
 	return &response
 }
 
 func (d *Database) CreateUser(
 	user models.LoginRequest, role string,
 ) *models.UserResponse {
+	logger := log.GetLogger("CreateUser")
+	logger.Info("Creating user %v", user.Email)
 	model := User{
 		Email: user.Email,
 		Password: user.Password,
@@ -64,6 +76,7 @@ func (d *Database) CreateUser(
 
 	if result.Error != nil {
 		fmt.Printf("Creation failed: %v", result.Error.Error())
+		logger.Error(result.Error.Error())
 		return nil
 	}
 	response := models.UserResponse{
@@ -71,5 +84,6 @@ func (d *Database) CreateUser(
 		Role:      model.Role,
 		Email:     model.Email,
 	}
+	logger.Info("Returning user %v", model.Model.ID)
 	return &response
 }
