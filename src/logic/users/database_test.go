@@ -9,7 +9,7 @@ type TestDatabase struct {
 	password    string
 	role        string
 	userId      uint
-	createFails bool
+	requestFails bool
 }
 
 func (d TestDatabase) GetUserByCredentials(
@@ -36,6 +36,14 @@ func (d TestDatabase) GetUserByEmail(email string) *models.UserResponse {
 	}
 	return &response
 }
+func (d TestDatabase) GetUser(id uint) *models.UserResponse {
+	response := models.UserResponse{
+		UserId: d.userId,
+		Role:   d.role,
+		Email:  d.email,
+	}
+	return &response
+}
 
 func (d *TestDatabase) CreateUser(
 	user models.LoginRequest, role string,
@@ -48,7 +56,44 @@ func (d *TestDatabase) CreateUser(
 		Role:   d.role,
 		Email:  d.email,
 	}
-	if d.createFails {
+	if d.requestFails {
+		return nil
+	}
+	return &response
+}
+
+func (d *TestDatabase) UpdateCredentials(
+	id uint, email, password string,
+) *models.UserResponse {
+	if email != "" {
+		d.email = email
+	}
+	if password != "" {
+		d.password = password
+	}
+	response := models.UserResponse{
+		UserId: d.userId,
+		Role:   d.role,
+		Email:  d.email,
+	}
+	if d.requestFails {
+		return nil
+	}
+	return &response
+}
+
+func (d *TestDatabase) UpdateRole(
+	id uint, role string,
+) *models.UserResponse {
+	if role != "" {
+		d.role = role
+	}
+	response := models.UserResponse{
+		UserId: d.userId,
+		Role:   d.role,
+		Email:  d.email,
+	}
+	if d.requestFails {
 		return nil
 	}
 	return &response
