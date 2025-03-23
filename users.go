@@ -23,3 +23,9 @@ func (s Server) update(w http.ResponseWriter, r *http.Request) {
 	p := parser.Parser{Writer: w, Request: r}
 	users.Update(p, s.database)
 }
+
+func (s Server) delete(w http.ResponseWriter, r *http.Request) {
+	s.logger.Info("Delete")
+	p := parser.Parser{Writer: w, Request: r}
+	users.Delete(p, s.database)
+}

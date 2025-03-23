@@ -30,7 +30,7 @@ type UpdateData struct {
 	request     models.UserUpdateRequest
 	userId      uint
 	permissions models.UserResponse
-	user *models.UserResponse
+	user        *models.UserResponse
 }
 
 func Update(parser UpdateParser, database UpdateDatabase) {
@@ -52,6 +52,11 @@ func Update(parser UpdateParser, database UpdateDatabase) {
 		return
 	}
 	data.user = data.database.GetUser(data.userId)
+	if data.user == nil {
+		data.logger.Info("User not found")
+		parser.WriteString(404, "User not found")
+		return
+	}
 	if data.permissions.UserId == data.userId {
 		data.logger.Info("Updating as user")
 		data.updateCredentials()

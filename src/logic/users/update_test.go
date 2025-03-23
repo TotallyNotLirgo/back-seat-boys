@@ -6,254 +6,137 @@ import (
 	"testing"
 )
 
-func TestUpdateInvalidBodyWrites422(t *testing.T) {
+func prepareUpdateTest(t *testing.T) (TestParser, TestDatabase, TestCase) {
 	parser := TestParser{
-		request:   nil,
-		readError: fmt.Errorf("Invalid body"),
+		pathKey:   "id",
+		pathParam: "12",
+		request: models.UserUpdateRequest{
+			Email:    "new",
+			Password: "new",
+			Role:     models.Admin,
+		},
+		access: models.UserResponse{
+			UserId: 11,
+			Email:  "user",
+			Role:   models.User,
+		},
 	}
-	database := TestDatabase{}
+	users := []*TestUser{
+		{
+			email:    "admin",
+			password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+			role:     models.Admin,
+			userId:   5,
+		},
+		{
+			email:    "user",
+			password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
+			role:     models.Admin,
+			userId:   12,
+		},
+	}
+	database := TestDatabase{users: users}
+	c := TestCase{t}
+	return parser, database, c
+}
+
+func TestUpdateInvalidBodyWrites422(t *testing.T) {
+	parser, database, c := prepareUpdateTest(t)
+	parser.readError = fmt.Errorf("Invalid body")
 	Update(&parser, &database)
 
-	if expected, got := 422, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := "Invalid body", parser.result; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(422, parser.status)
+	c.AssertEquals("Invalid body", parser.result)
 }
 
 func TestUpdateJWTErrorWrites401(t *testing.T) {
-	parser := TestParser{
-		request:      models.UserUpdateRequest{},
-		pathKey:      "id",
-		pathParam:    "12",
-		readJWTError: true,
-	}
-	database := TestDatabase{
-		email:    "admin",
-		password: "admin",
-		role:     models.Admin,
-		userId:   12,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.request = models.UserUpdateRequest{}
+	parser.readJWTError = true
 	Update(&parser, &database)
 
-	if expected, got := 401, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := "Unauthorized", parser.result; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(401, parser.status)
+	c.AssertEquals("Unauthorized", parser.result)
 }
 
 func TestUpdateForbiddenWrites403(t *testing.T) {
-	parser := TestParser{
-		request: models.UserUpdateRequest{},
-		access: models.UserResponse{
-			UserId: 11,
-			Email:  "user",
-			Role:   models.User,
-		},
-		pathKey:   "id",
-		pathParam: "12",
-	}
-	database := TestDatabase{
-		email:    "admin",
-		password: "admin",
-		role:     models.Admin,
-		userId:   12,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.request = models.UserUpdateRequest{}
 	Update(&parser, &database)
 
-	if expected, got := 403, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := "Insufficient permissions", parser.result; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(403, parser.status)
+	c.AssertEquals("Insufficient permissions", parser.result)
 }
 
 func TestUpdateHighRoleWrites200UpgradingRole(t *testing.T) {
-	parser := TestParser{
-		request: models.UserUpdateRequest{
-			Email:    "admin new",
-			Password: "admin new",
-			Role:     models.Admin,
-		},
-		access: models.UserResponse{
-			UserId: 11,
-			Email:  "user",
-			Role:   models.Admin,
-		},
-		pathKey:   "id",
-		pathParam: "12",
-	}
-	database := TestDatabase{
-		email:    "user",
-		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
-		role:     models.User,
-		userId:   12,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.access.Role = models.Admin
+	database.users[1].role = models.User
 	Update(&parser, &database)
 
-	if expected, got := 200, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(200, parser.status)
 	result := parser.result.(*models.UserResponse)
-	if expected, got := "user", result.Email; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := models.Admin, result.Role; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := uint(12), result.UserId; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	parser.request = models.LoginRequest{
-		Email:    "user",
-		Password: "user",
-	}
+	c.AssertEquals("user", result.Email)
+	c.AssertEquals(models.Admin, result.Role)
+	c.AssertEquals(uint(12), result.UserId)
+
+	parser.request = models.LoginRequest{Email: "user", Password: "user"}
 	Login(&parser, &database)
-	if expected, got := 200, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(200, parser.status)
 }
 
 func TestUpdateYourselfWrites200UpdatingOtherFields(t *testing.T) {
-	parser := TestParser{
-		request: models.UserUpdateRequest{
-			Email:    "user new",
-			Password: "user new",
-			Role:     models.Admin,
-		},
-		access: models.UserResponse{
-			UserId: 12,
-			Email:  "user",
-			Role:   models.User,
-		},
-		pathKey:   "id",
-		pathParam: "12",
-	}
-	database := TestDatabase{
-		email:    "user",
-		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
-		role:     models.User,
-		userId:   12,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.access.UserId = 12
+	database.users[1].role = models.User
 	Update(&parser, &database)
 
-	if expected, got := 200, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(200, parser.status)
 	result := parser.result.(*models.UserResponse)
-	if expected, got := "user new", result.Email; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := models.User, result.Role; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := uint(12), result.UserId; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	parser.request = models.LoginRequest{
-		Email:    "user new",
-		Password: "user new",
-	}
+	c.AssertEquals("new", result.Email)
+	c.AssertEquals(models.User, result.Role)
+	c.AssertEquals(uint(12), result.UserId)
+
+	parser.request = models.LoginRequest{Email: "new", Password: "new"}
 	Login(&parser, &database)
-	if expected, got := 200, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(200, parser.status)
 }
 
 func TestUpdateHighRoleHighRoleWrites403(t *testing.T) {
-	parser := TestParser{
-		request: models.UserUpdateRequest{
-			Email:    "admin new",
-			Password: "admin new",
-			Role:     models.Admin,
-		},
-		access: models.UserResponse{
-			UserId: 11,
-			Email:  "user",
-			Role:   models.Admin,
-		},
-		pathKey:   "id",
-		pathParam: "12",
-	}
-	database := TestDatabase{
-		email:    "user",
-		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
-		role:     models.Admin,
-		userId:   12,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.access.Role = models.Admin
 	Update(&parser, &database)
-	if expected, got := 403, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	errMsg := "Cannot change permissions of another admin"
-	if expected, got := errMsg, parser.result; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(403, parser.status)
+	c.AssertEquals("Cannot change permissions of another admin", parser.result)
 }
 
 func TestUpdateHighInvalidRoleWrites422(t *testing.T) {
-	parser := TestParser{
-		request: models.UserUpdateRequest{
-			Email:    "admin new",
-			Password: "admin new",
-			Role:     "invalid",
-		},
-		access: models.UserResponse{
-			UserId: 11,
-			Email:  "user",
-			Role:   models.Admin,
-		},
-		pathKey:   "id",
-		pathParam: "12",
-	}
-	database := TestDatabase{
-		email:    "user",
-		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
-		role:     models.User,
-		userId:   12,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.request = models.UserUpdateRequest{Role: "Invalid"}
+	parser.access.Role = models.Admin
+	database.users[1].role = models.User
 	Update(&parser, &database)
 
-	if expected, got := 422, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := "Invalid role", parser.result; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(422, parser.status)
+	c.AssertEquals("Invalid role", parser.result)
 }
 
 func TestUpdateEmailExistsWrites409(t *testing.T) {
-	parser := TestParser{
-		request: models.UserUpdateRequest{
-			Email:    "user",
-			Password: "admin",
-			Role:     models.Admin,
-		},
-		access: models.UserResponse{
-			UserId: 12,
-			Email:  "admin",
-			Role:   models.Admin,
-		},
-		pathKey:   "id",
-		pathParam: "12",
-	}
-	database := TestDatabase{
-		email:    "user",
-		password: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
-		role:     models.User,
-		userId:   12,
-		getUserId: 11,
-	}
+	parser, database, c := prepareUpdateTest(t)
+	parser.request = models.UserUpdateRequest{Email: "admin"}
+	parser.access.UserId = 12
 	Update(&parser, &database)
 
-	if expected, got := 409, parser.status; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
-	if expected, got := "Email taken", parser.result; expected != got {
-		t.Fatalf("Expected %v, got %v", expected, got)
-	}
+	c.AssertEquals(409, parser.status)
+	c.AssertEquals("Email taken", parser.result)
+}
+
+func TestUpdateUserNotFoundWrites404(t *testing.T) {
+	parser, database, c := prepareUpdateTest(t)
+	parser.access.Role = models.Admin
+	parser.pathParam = "999"
+	Update(&parser, &database)
+
+	c.AssertEquals(404, parser.status)
+	c.AssertEquals("User not found", parser.result)
 }

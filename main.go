@@ -36,6 +36,7 @@ func main() {
 	http.HandleFunc("POST /api/login", server.login)
 	http.HandleFunc("POST /api/register", server.register)
 	http.HandleFunc("PATCH /api/users/{id}", server.update)
+	http.HandleFunc("DELETE /api/users/{id}", server.delete)
 	http.ListenAndServeTLS(
 		":8090",
 		"cert/localhost.crt",
