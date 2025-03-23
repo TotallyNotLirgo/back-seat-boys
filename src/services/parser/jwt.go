@@ -35,7 +35,6 @@ func (p Parser) WriteJWTCookie(response models.UserResponse) {
 func (p Parser) ReadJWTCookie(request *models.UserResponse) {
 	logger := log.GetLogger("ReadJWTCookie")
 	logger.Info("Reading JWT")
-	logger.Info(fmt.Sprint(p.Request.Cookies()))
 	cookie, err := p.Request.Cookie("JWT")
 	if err != nil {
 		logger.Error(err.Error())
