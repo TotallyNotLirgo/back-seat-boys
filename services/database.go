@@ -1,18 +1,6 @@
-//go:build test
+package services
 
-package users
-
-import (
-	"crypto/sha256"
-	"errors"
-	"fmt"
-
-	"github.com/TotallyNotLirgo/back-seat-boys/models"
-)
-
-var (
-	ErrTestServer = errors.New("Server error")
-)
+import "github.com/TotallyNotLirgo/back-seat-boys/models"
 
 type userModel struct {
 	id       int
@@ -35,18 +23,9 @@ func NewServiceAdapter() TestServiceAdapter {
 	}
 }
 
-func (tsa *TestServiceAdapter) insert(email, pass string, role models.Role) {
-	tsa.lastId++
-	pass = fmt.Sprintf("%x", sha256.Sum256([]byte(pass)))
-	tsa.users = append(tsa.users, &userModel{tsa.lastId, email, pass, role})
-}
-
 func (tsa *TestServiceAdapter) GetUserByEmail(
 	email string,
 ) (*models.UserModel, error) {
-	if tsa.errors["GetUserByEmail"] {
-		return nil, ErrTestServer
-	}
 	for _, user := range tsa.users {
 		if user.email != email {
 			continue
@@ -63,9 +42,6 @@ func (tsa *TestServiceAdapter) GetUserByEmail(
 func (tsa *TestServiceAdapter) GetUserByCredentials(
 	email, password string,
 ) (*models.UserModel, error) {
-	if tsa.errors["GetUserByCredentials"] {
-		return nil, ErrTestServer
-	}
 	for _, user := range tsa.users {
 		if user.email != email {
 			continue
@@ -85,18 +61,12 @@ func (tsa *TestServiceAdapter) GetUserByCredentials(
 func (tsa *TestServiceAdapter) InsertUser(
 	email, pass string, role models.Role,
 ) (int, error) {
-	if tsa.errors["InsertUser"] {
-		return 0, ErrTestServer
-	}
 	tsa.lastId++
 	tsa.users = append(tsa.users, &userModel{tsa.lastId, email, pass, role})
 	return tsa.lastId, nil
 }
 
 func (tsa *TestServiceAdapter) SendEmail(email, token string) error {
-	if tsa.errors["SendEmail"] {
-		return errors.New("Server error")
-	}
 	tsa.tokens[email] = token
 	return nil
 }
