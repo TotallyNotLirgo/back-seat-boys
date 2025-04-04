@@ -11,7 +11,7 @@ import (
 
 type EndpointFacade struct {
 	logger   *slog.Logger
-	services services.TestServiceAdapter
+	services *services.TestServiceAdapter
 }
 
 var appEnv = os.Getenv("APP_ENV")

@@ -46,7 +46,7 @@ func TestRegisterUserExistsReturnsConflict(t *testing.T) {
 }
 
 func TestRegisterUserCorrect(t *testing.T) {
-	expected := models.UserResponse{Id: 2, Email: "new@email.com", Role: "new"}
+	expected := models.UserResponse{UserId: 2, Email: "new@email.com", Role: "new"}
 	services := NewServiceAdapter()
 	services.insert("user@email.com", "pass", models.RoleUser)
 	result, err := Register(

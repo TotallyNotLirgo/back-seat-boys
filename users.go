@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log/slog"
 
 	"github.com/TotallyNotLirgo/back-seat-boys/context"
@@ -9,24 +8,6 @@ import (
 	"github.com/TotallyNotLirgo/back-seat-boys/users"
 	"github.com/gin-gonic/gin"
 )
-
-func getStatusCode(err error) int {
-	switch {
-	case errors.Is(err, models.ErrUnauthorized):
-		return 401
-	case errors.Is(err, models.ErrForbidden):
-		return 403
-	case errors.Is(err, models.ErrNotFound):
-		return 404
-	case errors.Is(err, models.ErrConflict):
-		return 409
-	case errors.Is(err, models.ErrBadRequest):
-		return 422
-	case errors.Is(err, models.ErrServerError):
-		return 500
-	}
-	return 500
-}
 
 func (f EndpointFacade) login(ctx *gin.Context) {
 	var err error
@@ -43,10 +24,14 @@ func (f EndpointFacade) login(ctx *gin.Context) {
 		return
 	}
 	l.Info("Processing the request")
-	response, err = users.Login(&f.services, request)
+	response, err = users.Login(f.services, request)
 	if err != nil {
-		code := getStatusCode(err)
-		c.WriteJSONMessage(code, err.Error())
+		c.WriteErrorResponse(err)
+		return
+	}
+	err = c.WriteJWTCookie(response)
+	if err != nil {
+		c.WriteJSONMessage(500, err.Error())
 		return
 	}
 
@@ -66,10 +51,9 @@ func (f EndpointFacade) register(ctx *gin.Context) {
 		l.Info(err.Error())
 		return
 	}
-	response, err = users.Register(&f.services, request)
+	response, err = users.Register(f.services, request)
 	if err != nil {
-		code := getStatusCode(err)
-		c.WriteJSONMessage(code, err.Error())
+		c.WriteErrorResponse(err)
 		return
 	}
 
@@ -80,6 +64,7 @@ func (f EndpointFacade) update(ctx *gin.Context) {
 	var err error
 	var id int
 	var request models.UserRequest
+	var permissions models.UserResponse
 	var response models.UserResponse
 
 	c := context.Context{Context: ctx}
@@ -87,6 +72,12 @@ func (f EndpointFacade) update(ctx *gin.Context) {
 		slog.String("endpoint", "update"),
 		slog.String("hash", getRandomHash()),
 	)
+	err = c.ReadJWTCookie(&permissions)
+	if err != nil {
+		c.WriteJSONMessage(422, err.Error())
+		return
+	}
+	l = l.With(slog.Int("userId", permissions.UserId))
 	if id, err = c.GetPathId(); err != nil {
 		l.Info(err.Error())
 		return

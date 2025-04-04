@@ -16,8 +16,8 @@ type TestServiceAdapter struct {
 	tokens map[string]string
 }
 
-func NewServiceAdapter() TestServiceAdapter {
-	return TestServiceAdapter{
+func NewServiceAdapter() *TestServiceAdapter {
+	return &TestServiceAdapter{
 		errors: make(map[string]bool),
 		tokens: make(map[string]string),
 	}
@@ -31,7 +31,7 @@ func (tsa *TestServiceAdapter) GetUserByEmail(
 			continue
 		}
 		return &models.UserModel{
-			Id:    user.id,
+			UserId:    user.id,
 			Email: user.email,
 			Role:  user.role,
 		}, nil
@@ -50,7 +50,7 @@ func (tsa *TestServiceAdapter) GetUserByCredentials(
 			continue
 		}
 		return &models.UserModel{
-			Id:    user.id,
+			UserId:    user.id,
 			Email: user.email,
 			Role:  user.role,
 		}, nil

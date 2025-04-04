@@ -14,13 +14,13 @@ type UserRequest struct {
 }
 
 type UserModel struct {
-	Id    int
+	UserId    int
 	Email string
 	Role  Role
 }
 
 type UserResponse struct {
-	Id    int    `json:"id"`
+	UserId    int    `json:"id"`
 	Email string `json:"email"`
 	Role  Role   `json:"role"`
 }

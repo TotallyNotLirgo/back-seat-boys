@@ -22,7 +22,7 @@ func TestLoginUserNotFoundReturnsUnauthorized(t *testing.T) {
 
 func TestLoginUserCorrect(t *testing.T) {
 	expected := models.UserResponse{
-		Id:    1,
+		UserId:    1,
 		Email: "user@email.com",
 		Role:  models.RoleUser,
 	}

@@ -46,7 +46,7 @@ func Register(
 	if err != nil {
 		return response, errors.Join(models.ErrBadRequest, err)
 	}
-	response.Id = id
+	response.UserId = id
 	response.Email = request.Email
 	response.Role = models.RoleNew
 	return response, nil

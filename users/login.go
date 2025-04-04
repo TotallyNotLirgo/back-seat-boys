@@ -27,7 +27,7 @@ func Login(
 	if user == nil {
 		return response, errors.Join(models.ErrUnauthorized, ErrUserNotFound)
 	}
-	response.Id = user.Id
+	response.UserId = user.UserId
 	response.Email = user.Email
 	response.Role = user.Role
 	return response, nil

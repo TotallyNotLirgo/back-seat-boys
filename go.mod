@@ -5,6 +5,7 @@ go 1.23.2
 require (
 	github.com/MatusOllah/slogcolor v1.5.0
 	github.com/gin-gonic/gin v1.10.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/go-cmp v0.5.5
 	github.com/google/uuid v1.6.0
 )

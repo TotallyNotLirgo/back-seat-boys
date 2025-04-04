@@ -52,7 +52,7 @@ func (tsa *TestServiceAdapter) GetUserByEmail(
 			continue
 		}
 		return &models.UserModel{
-			Id:    user.id,
+			UserId:    user.id,
 			Email: user.email,
 			Role:  user.role,
 		}, nil
@@ -74,7 +74,7 @@ func (tsa *TestServiceAdapter) GetUserByCredentials(
 			continue
 		}
 		return &models.UserModel{
-			Id:    user.id,
+			UserId:    user.id,
 			Email: user.email,
 			Role:  user.role,
 		}, nil
