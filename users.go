@@ -82,6 +82,11 @@ func (f EndpointFacade) update(c *gin.Context) {
 		logger.Info(err.Error())
 		return
 	}
+	response, err = users.Update(ctx, f.services, id, request)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
 
 	p.JSON(200, response)
 }

@@ -30,8 +30,8 @@ func main() {
 	}
 	defer closer()
 
-    r.Use(loggerMiddleware(*logger))
-    r.Use(authMiddleware())
+	r.Use(loggerMiddleware(*logger))
+	r.Use(authMiddleware())
 	f := EndpointFacade{services.NewServiceAdapter()}
 	r.POST("/api/login", f.login)
 	r.POST("/api/register", f.register)

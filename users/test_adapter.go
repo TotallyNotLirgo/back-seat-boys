@@ -41,6 +41,25 @@ func (tsa *TestServiceAdapter) insert(email, pass string, role models.Role) {
 	tsa.users = append(tsa.users, &userModel{tsa.lastId, email, pass, role})
 }
 
+func (tsa *TestServiceAdapter) GetUserById(
+	id int,
+) (*models.UserModel, error) {
+	if tsa.errors["GetUserById"] {
+		return nil, ErrTestServer
+	}
+	for _, user := range tsa.users {
+		if user.id != id {
+			continue
+		}
+		return &models.UserModel{
+			UserId: user.id,
+			Email:  user.email,
+			Role:   user.role,
+		}, nil
+	}
+	return nil, nil
+}
+
 func (tsa *TestServiceAdapter) GetUserByEmail(
 	email string,
 ) (*models.UserModel, error) {
@@ -58,6 +77,30 @@ func (tsa *TestServiceAdapter) GetUserByEmail(
 		}, nil
 	}
 	return nil, nil
+}
+
+func (tsa *TestServiceAdapter) UpdateUser(
+	id int, email, password string, role models.Role,
+) error {
+	if tsa.errors["UpdateUser"] {
+		return ErrTestServer
+	}
+	for _, user := range tsa.users {
+		if user.id != id {
+			continue
+		}
+		if email != "" {
+			user.email = email
+		}
+		if password != "" {
+			user.password = password
+		}
+		if role != "" {
+			user.role = role
+		}
+		break
+	}
+	return nil
 }
 
 func (tsa *TestServiceAdapter) GetUserByCredentials(

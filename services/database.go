@@ -25,6 +25,22 @@ func NewServiceAdapter() *TestServiceAdapter {
 	}
 }
 
+func (tsa *TestServiceAdapter) GetUserById(
+	id int,
+) (*models.UserModel, error) {
+	for _, user := range tsa.users {
+		if user.id != id {
+			continue
+		}
+		return &models.UserModel{
+			UserId: user.id,
+			Email:  user.email,
+			Role:   user.role,
+		}, nil
+	}
+	return nil, nil
+}
+
 func (tsa *TestServiceAdapter) GetUserByEmail(
 	email string,
 ) (*models.UserModel, error) {
@@ -58,6 +74,27 @@ func (tsa *TestServiceAdapter) GetUserByCredentials(
 		}, nil
 	}
 	return nil, nil
+}
+
+func (tsa *TestServiceAdapter) UpdateUser(
+	id int, email, password string, role models.Role,
+) error {
+	for _, user := range tsa.users {
+		if user.id != id {
+			continue
+		}
+		if email != "" {
+			user.email = email
+		}
+		if password != "" {
+			user.password = password
+		}
+		if role != "" {
+			user.role = role
+		}
+		return nil
+	}
+	return nil
 }
 
 func (tsa *TestServiceAdapter) InsertUser(

@@ -11,6 +11,7 @@ import (
 func TestLoginUserNotFoundReturnsUnauthorized(t *testing.T) {
 	expected := models.ErrUnauthorized
 	ctx, services := PrepareTest()
+	services.insert("email@email.com", "Password1!", models.RoleUser)
 	_, result := Login(
 		ctx,
 		&services,
@@ -23,11 +24,12 @@ func TestLoginUserNotFoundReturnsUnauthorized(t *testing.T) {
 
 func TestLoginUserCorrect(t *testing.T) {
 	expected := models.UserResponse{
-		UserId: 1,
+		UserId: 2,
 		Email:  "user@email.com",
 		Role:   models.RoleUser,
 	}
 	ctx, services := PrepareTest()
+	services.insert("admin@email.com", "Password1!", models.RoleUser)
 	services.insert("user@email.com", "Password1!", models.RoleUser)
 	result, err := Login(
 		ctx,

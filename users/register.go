@@ -22,7 +22,7 @@ func Register(
 	ctx context.Context, s RegisterServices, request models.UserRequest,
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
-    logger = logger.With(slog.String("email", request.Email))
+	logger = logger.With(slog.String("email", request.Email))
 
 	if err = IsPasswordValid(request.Password); err != nil {
 		logger.Info("invalid password")
@@ -52,7 +52,7 @@ func Register(
 		logger.Error("email engine error", slog.String("error", err.Error()))
 		return response, models.ErrServerError
 	}
-    logger.Info("user created, returning")
+	logger.Info("user created, returning")
 	response.UserId = id
 	response.Email = request.Email
 	response.Role = models.RoleNew
