@@ -5,11 +5,12 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/TotallyNotLirgo/back-seat-boys/services"
 	"github.com/gin-gonic/gin"
 )
 
 type EndpointFacade struct {
-	logger *slog.Logger
+	services *services.TestServiceAdapter
 }
 
 var appEnv = os.Getenv("APP_ENV")
@@ -29,7 +30,9 @@ func main() {
 	}
 	defer closer()
 
-	f := EndpointFacade{logger}
+    r.Use(loggerMiddleware(*logger))
+    r.Use(authMiddleware())
+	f := EndpointFacade{services.NewServiceAdapter()}
 	r.POST("/api/login", f.login)
 	r.POST("/api/register", f.register)
 	r.PATCH("/api/users/:id", f.update)

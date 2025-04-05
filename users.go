@@ -3,85 +3,105 @@ package main
 import (
 	"log/slog"
 
-	"github.com/TotallyNotLirgo/back-seat-boys/context"
 	"github.com/TotallyNotLirgo/back-seat-boys/models"
+	"github.com/TotallyNotLirgo/back-seat-boys/parser"
+	"github.com/TotallyNotLirgo/back-seat-boys/users"
 	"github.com/gin-gonic/gin"
+	slogctx "github.com/veqryn/slog-context"
 )
 
-func (f EndpointFacade) login(ctx *gin.Context) {
+func (f EndpointFacade) login(c *gin.Context) {
 	var err error
 	var request models.UserRequest
 	var response models.UserResponse
 
-	c := context.Context{Context: ctx}
-	l := f.logger.With(
-		slog.String("endpoint", "login"),
-		slog.String("hash", getRandomHash()),
-	)
-	if err = c.Unmarshal(&request); err != nil {
-		l.Info(err.Error())
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("login")
+	p := parser.Parser{Context: c}
+	if err = p.Unmarshal(&request); err != nil {
+		logger.Info(err.Error())
+		return
+	}
+	response, err = users.Login(ctx, f.services, request)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
+	err = p.WriteJWTCookie(response)
+	if err != nil {
+		logger.Error("could not encode JWT", slog.String("error", err.Error()))
+		p.WriteJSONMessage(500, "could not encode JWT")
 		return
 	}
 
-	l.Info("Processing request")
-	c.JSON(200, response)
+	p.JSON(200, response)
 }
-func (f EndpointFacade) register(ctx *gin.Context) {
+func (f EndpointFacade) register(c *gin.Context) {
 	var err error
 	var request models.UserRequest
 	var response models.UserResponse
 
-	c := context.Context{Context: ctx}
-	l := f.logger.With(
-		slog.String("endpoint", "register"),
-		slog.String("hash", getRandomHash()),
-	)
-	if err = c.Unmarshal(&request); err != nil {
-		l.Info(err.Error())
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("register")
+	p := parser.Parser{Context: c}
+
+	if err = p.Unmarshal(&request); err != nil {
+		logger.Info(err.Error())
 		return
 	}
 
-	l.Info("Processing request")
-	c.JSON(200, response)
+	response, err = users.Register(ctx, f.services, request)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
+
+	p.JSON(200, response)
 }
-func (f EndpointFacade) update(ctx *gin.Context) {
+func (f EndpointFacade) update(c *gin.Context) {
 	var err error
 	var id int
 	var request models.UserRequest
 	var response models.UserResponse
 
-	c := context.Context{Context: ctx}
-	l := f.logger.With(
-		slog.String("endpoint", "update"),
-		slog.String("hash", getRandomHash()),
-	)
-	if id, err = c.GetPathId(); err != nil {
-		l.Info(err.Error())
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("update")
+	p := parser.Parser{Context: c}
+	if id, err = p.GetPathId(); err != nil {
+		logger.Info(err.Error())
 		return
 	}
-	if err = c.Unmarshal(&request); err != nil {
-		l.Info(err.Error())
+	if err = p.CheckAccessAcceptOnlySelf(id); err != nil {
+		logger.Info(err.Error())
+		return
+	}
+	if err = p.Unmarshal(&request); err != nil {
+		logger.Info(err.Error())
 		return
 	}
 
-	l.Info("Processing request")
-	c.JSON(200, gin.H{"id": id, "response": response})
+	p.JSON(200, response)
 }
-func (f EndpointFacade) delete(ctx *gin.Context) {
+func (f EndpointFacade) delete(c *gin.Context) {
 	var err error
 	var id int
 	var response models.UserResponse
 
-	c := context.Context{Context: ctx}
-	l := f.logger.With(
-		slog.String("endpoint", "delete"),
-		slog.String("hash", getRandomHash()),
-	)
-	if id, err = c.GetPathId(); err != nil {
-		l.Info(err.Error())
+	p := parser.Parser{Context: c}
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("delete")
+	if id, err = p.GetPathId(); err != nil {
+		logger.Info(err.Error())
+		return
+	}
+	if err = p.CheckAccessAcceptSelf(id, models.RoleAdmin); err != nil {
+		logger.Info(err.Error())
 		return
 	}
 
-	l.Info("Processing request")
-	c.JSON(200, gin.H{"id": id, "response": response})
+	p.JSON(200, response)
 }

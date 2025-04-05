@@ -1,4 +1,4 @@
-package context
+package parser
 
 import (
 	"fmt"
@@ -7,22 +7,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Context struct {
+type Parser struct {
 	*gin.Context
 	Body gin.H
 }
 
-func (c *Context) WriteJSONMessage(status int, message string) {
+func (c *Parser) WriteJSONMessage(status int, message string) {
 	c.JSON(status, gin.H{"error": message})
 }
 
-func (c *Context) WriteError(status int, message string, args ...any) error {
+func (c *Parser) WriteError(status int, message string, args ...any) error {
 	err := fmt.Errorf(message, args...)
 	c.WriteJSONMessage(status, err.Error())
 	return err
 }
 
-func (c *Context) GetJSON() error {
+func (c *Parser) GetJSON() error {
 	err := c.ShouldBindJSON(&c.Body)
 	if err != nil {
 		c.WriteJSONMessage(422, "invalid json")
@@ -31,7 +31,7 @@ func (c *Context) GetJSON() error {
 	return nil
 }
 
-func (c *Context) GetPathId() (int, error) {
+func (c *Parser) GetPathId() (int, error) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.WriteJSONMessage(422, "id not an int")
