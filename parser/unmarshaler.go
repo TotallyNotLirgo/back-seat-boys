@@ -1,10 +1,10 @@
-package context
+package parser
 
 import (
 	"reflect"
 )
 
-func (c *Context) Unmarshal(v any) error {
+func (c *Parser) Unmarshal(v any) error {
 	vPointer, vType, err := c.getReflection(v)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func (c *Context) Unmarshal(v any) error {
 	return nil
 }
 
-func (c *Context) getReflection(v any) (reflect.Value, reflect.Type, error) {
+func (c *Parser) getReflection(v any) (reflect.Value, reflect.Type, error) {
 	vPointer := reflect.ValueOf(v)
 	zero := reflect.Zero(vPointer.Type())
 	if vPointer.Kind() != reflect.Pointer {
@@ -38,7 +38,7 @@ func (c *Context) getReflection(v any) (reflect.Value, reflect.Type, error) {
 	return vPointer, vType, nil
 }
 
-func (c *Context) unmarshalKey(
+func (c *Parser) unmarshalKey(
 	field reflect.Value,
 	typeField reflect.StructField,
 ) error {

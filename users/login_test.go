@@ -10,8 +10,9 @@ import (
 
 func TestLoginUserNotFoundReturnsUnauthorized(t *testing.T) {
 	expected := models.ErrUnauthorized
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	_, result := Login(
+		ctx,
 		&services,
 		models.UserRequest{Email: "email@email.com", Password: "pass1!"},
 	)
@@ -22,13 +23,14 @@ func TestLoginUserNotFoundReturnsUnauthorized(t *testing.T) {
 
 func TestLoginUserCorrect(t *testing.T) {
 	expected := models.UserResponse{
-		UserId:    1,
-		Email: "user@email.com",
-		Role:  models.RoleUser,
+		UserId: 1,
+		Email:  "user@email.com",
+		Role:   models.RoleUser,
 	}
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleUser)
 	result, err := Login(
+		ctx,
 		&services,
 		models.UserRequest{Email: "user@email.com", Password: "Password1!"},
 	)
@@ -42,9 +44,10 @@ func TestLoginUserCorrect(t *testing.T) {
 
 func TestLoginGetReturnsServerError(t *testing.T) {
 	expected := models.ErrServerError
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	services.errors["GetUserByCredentials"] = true
 	_, result := Login(
+		ctx,
 		&services,
 		models.UserRequest{Email: "email@email.com", Password: "Password1!"},
 	)

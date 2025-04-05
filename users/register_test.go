@@ -10,8 +10,9 @@ import (
 
 func TestRegisterInvalidPasswordReturnsBadRequest(t *testing.T) {
 	expected := models.ErrBadRequest
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	_, result := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "email@email.com", Password: "pass1!"},
 	)
@@ -22,8 +23,9 @@ func TestRegisterInvalidPasswordReturnsBadRequest(t *testing.T) {
 
 func TestRegisterInvalidEmailReturnsBadRequest(t *testing.T) {
 	expected := models.ErrBadRequest
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	_, result := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "emailemail.com", Password: "Password1!"},
 	)
@@ -34,9 +36,10 @@ func TestRegisterInvalidEmailReturnsBadRequest(t *testing.T) {
 
 func TestRegisterUserExistsReturnsConflict(t *testing.T) {
 	expected := models.ErrConflict
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	services.insert("user@email.com", "pass", models.RoleUser)
 	_, result := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "user@email.com", Password: "Password1!"},
 	)
@@ -47,9 +50,10 @@ func TestRegisterUserExistsReturnsConflict(t *testing.T) {
 
 func TestRegisterUserCorrect(t *testing.T) {
 	expected := models.UserResponse{UserId: 2, Email: "new@email.com", Role: "new"}
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	services.insert("user@email.com", "pass", models.RoleUser)
 	result, err := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "new@email.com", Password: "Password1!"},
 	)
@@ -72,9 +76,10 @@ func TestRegisterUserCorrect(t *testing.T) {
 
 func TestRegisterGetServerError(t *testing.T) {
 	expected := models.ErrServerError
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	services.errors["GetUserByEmail"] = true
 	_, result := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "user@email.com", Password: "Password1!"},
 	)
@@ -85,9 +90,10 @@ func TestRegisterGetServerError(t *testing.T) {
 
 func TestRegisterInsertServerError(t *testing.T) {
 	expected := models.ErrServerError
-	services := NewServiceAdapter()
+	ctx, services := PrepareTest()
 	services.errors["InsertUser"] = true
 	_, result := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "user@email.com", Password: "Password1!"},
 	)
@@ -97,10 +103,11 @@ func TestRegisterInsertServerError(t *testing.T) {
 }
 
 func TestRegisterSendEmailServerError(t *testing.T) {
-	expected := models.ErrBadRequest
-	services := NewServiceAdapter()
+	expected := models.ErrServerError
+	ctx, services := PrepareTest()
 	services.errors["SendEmail"] = true
 	_, result := Register(
+		ctx,
 		&services,
 		models.UserRequest{Email: "user@email.com", Password: "Password1!"},
 	)

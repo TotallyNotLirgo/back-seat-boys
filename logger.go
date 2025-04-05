@@ -4,10 +4,11 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
-	"github.com/MatusOllah/slogcolor"
 	"log/slog"
 	"os"
 	"time"
+
+	"github.com/MatusOllah/slogcolor"
 )
 
 func getDevLogger() (*slog.Logger, func() error) {

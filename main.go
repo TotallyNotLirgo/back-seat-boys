@@ -10,7 +10,6 @@ import (
 )
 
 type EndpointFacade struct {
-	logger   *slog.Logger
 	services *services.TestServiceAdapter
 }
 
@@ -31,7 +30,9 @@ func main() {
 	}
 	defer closer()
 
-	f := EndpointFacade{logger, services.NewServiceAdapter()}
+    r.Use(loggerMiddleware(*logger))
+    r.Use(authMiddleware())
+	f := EndpointFacade{services.NewServiceAdapter()}
 	r.POST("/api/login", f.login)
 	r.POST("/api/register", f.register)
 	r.PATCH("/api/users/:id", f.update)

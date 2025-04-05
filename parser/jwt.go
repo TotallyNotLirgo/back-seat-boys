@@ -1,4 +1,4 @@
-package context
+package parser
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 
 var secretKey = "mysecretkey"
 
-func (c Context) WriteJWTCookie(response models.UserResponse) error {
+func (c Parser) WriteJWTCookie(response models.UserResponse) error {
 	value, err := generateJWT(response)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func (c Context) WriteJWTCookie(response models.UserResponse) error {
 	return nil
 }
 
-func (c Context) ReadJWTCookie(request *models.UserResponse) error {
+func (c Parser) ReadJWTCookie(request *models.UserResponse) error {
 	cookie, err := c.Cookie("JWT")
 	if err != nil {
 		return err

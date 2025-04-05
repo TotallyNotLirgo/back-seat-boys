@@ -1,4 +1,4 @@
-package context
+package parser
 
 import (
 	"errors"
@@ -6,14 +6,14 @@ import (
 	"github.com/TotallyNotLirgo/back-seat-boys/models"
 )
 
-func (c *Context) WriteErrorResponse(err error) {
-    code := getStatusCode(err)
-    msg, err := getErrorMessage(err)
-    if err != nil {
-        c.WriteJSONMessage(500, err.Error())
-        return
-    }
-    c.WriteJSONMessage(code, msg)
+func (c *Parser) WriteErrorResponse(err error) {
+	code := getStatusCode(err)
+	msg, err := getErrorMessage(err)
+	if err != nil {
+		c.WriteJSONMessage(500, err.Error())
+		return
+	}
+	c.WriteJSONMessage(code, msg)
 }
 
 func getStatusCode(err error) int {
@@ -37,7 +37,7 @@ func getStatusCode(err error) int {
 func getErrorMessage(err error) (string, error) {
 	errs, ok := err.(interface{ Unwrap() []error })
 	if !ok {
-		return "", errors.New("could not unwrap error messages")
+		return err.Error(), nil
 	}
 	for _, e := range errs.Unwrap() {
 		if !errors.Is(e, models.ErrServiceError) {
