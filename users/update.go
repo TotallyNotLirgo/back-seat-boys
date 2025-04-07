@@ -26,13 +26,7 @@ func Update(
 	var password string
 	var role models.Role
 	logger := slogctx.FromCtx(ctx)
-	logger = logger.With(
-		slog.Group(
-			"user",
-			slog.Int("id", id),
-			slog.String("email", request.Email),
-		),
-	)
+	logger.Info("Updating", slog.Int("uid", id))
 	found, err := s.GetUserById(id)
 	if err != nil {
 		logger.Error("db error", slog.String("error", err.Error()))
