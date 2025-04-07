@@ -2,11 +2,16 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/TotallyNotLirgo/back-seat-boys/models"
 	"github.com/golang-jwt/jwt"
+)
+
+var (
+	ErrJWTClaims = errors.New("could not extract claims")
+	ErrJWTRole   = errors.New("could not convert role")
+	ErrJWTEmail  = errors.New("could not convert email")
 )
 
 var secretKey = "mysecretkey"
@@ -44,17 +49,17 @@ func (c Parser) ReadJWTCookie(request *models.UserResponse) error {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return errors.New("could not extract claims")
+		return ErrJWTClaims
 	}
 	request.UserId = int(claims["userId"].(float64))
 	role, ok := claims["role"].(string)
 	if !ok {
-		return errors.New("could not convert role")
+		return ErrJWTRole
 	}
 	request.Role = models.Role(role)
 	request.Email, ok = claims["email"].(string)
 	if !ok {
-		return errors.New("could not convert email")
+		return ErrJWTEmail
 	}
 	return nil
 }
@@ -69,7 +74,7 @@ func generateJWT(response models.UserResponse) (string, error) {
 	claims["role"] = response.Role
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
-		return "", fmt.Errorf("could not encode: \n%v\n", err)
+		return "", err
 	}
 	return tokenString, nil
 }

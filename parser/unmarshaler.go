@@ -1,7 +1,18 @@
 package parser
 
 import (
+	"errors"
+	"fmt"
 	"reflect"
+
+	"github.com/TotallyNotLirgo/back-seat-boys/models"
+)
+
+var (
+	ErrStructPointer = errors.Join(
+		models.ErrServerError,
+		errors.New("value must be a struct pointer"),
+	)
 )
 
 func (c *Parser) Unmarshal(v any) error {
@@ -29,11 +40,13 @@ func (c *Parser) getReflection(v any) (reflect.Value, reflect.Type, error) {
 	vPointer := reflect.ValueOf(v)
 	zero := reflect.Zero(vPointer.Type())
 	if vPointer.Kind() != reflect.Pointer {
-		return zero, nil, c.WriteError(500, "value must be a struct pointer")
+		c.WriteErrorResponse(ErrStructPointer)
+		return zero, nil, ErrStructPointer
 	}
 	vType := vPointer.Type().Elem()
 	if vType.Kind() != reflect.Struct {
-		return zero, nil, c.WriteError(500, "value must be a struct pointer")
+		c.WriteErrorResponse(ErrStructPointer)
+		return zero, nil, ErrStructPointer
 	}
 	return vPointer, vType, nil
 }
@@ -45,11 +58,15 @@ func (c *Parser) unmarshalKey(
 	key := typeField.Tag.Get("json")
 	v, ok := c.Body[key]
 	if !ok {
-		return c.WriteError(422, "field '%v' missing", key)
+		err := errors.New(fmt.Sprintf("field '%v' missing", key))
+		c.WriteErrorResponse(errors.Join(models.ErrBadRequest, err))
+		return err
 	}
 	vValue := reflect.ValueOf(v)
 	if field.Kind() != vValue.Kind() {
-		return c.WriteError(422, "field '%v' not %v", key, field.Kind())
+		err := errors.New(fmt.Sprintf("field '%v' not %v", key, field.Kind()))
+		c.WriteErrorResponse(errors.Join(models.ErrBadRequest, err))
+		return err
 	}
 	field.Set(vValue)
 	return nil

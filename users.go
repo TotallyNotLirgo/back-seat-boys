@@ -107,6 +107,11 @@ func (f EndpointFacade) delete(c *gin.Context) {
 		logger.Info(err.Error())
 		return
 	}
+	response, err = users.Delete(ctx, f.services, id)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
 
 	p.JSON(200, response)
 }

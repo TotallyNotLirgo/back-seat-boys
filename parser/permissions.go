@@ -1,39 +1,60 @@
 package parser
 
-import "github.com/TotallyNotLirgo/back-seat-boys/models"
+import (
+	"errors"
+
+	"github.com/TotallyNotLirgo/back-seat-boys/models"
+)
+
+var (
+	ErrPermissionForbidden = errors.Join(
+		models.ErrForbidden,
+		errors.New("you don't have sufficient permissions"),
+	)
+	ErrPermissionUnauthorized = errors.Join(
+		models.ErrUnauthorized,
+		errors.New("you need to be logged in"),
+	)
+)
 
 func (c *Parser) CheckAccessAcceptOnlySelf(id int) error {
 	ctx := c.Request.Context()
 	perm, ok := ctx.Value("permissions").(models.UserResponse)
 	if !ok {
-		return c.WriteError(401, "unauthorized")
+		c.WriteErrorResponse(ErrPermissionUnauthorized)
+		return ErrPermissionUnauthorized
 	}
 	if perm.UserId == id {
 		return nil
 	}
-	return c.WriteError(403, "forbidden")
+	c.WriteErrorResponse(ErrPermissionForbidden)
+	return ErrPermissionForbidden
 }
 
 func (c *Parser) CheckAccessAcceptSelf(id int, role models.Role) error {
 	ctx := c.Request.Context()
 	perm, ok := ctx.Value("permissions").(models.UserResponse)
 	if !ok {
-		return c.WriteError(401, "unauthorized")
+		c.WriteErrorResponse(ErrPermissionUnauthorized)
+		return ErrPermissionUnauthorized
 	}
 	if perm.UserId == id || perm.Role.GreaterEqual(role) {
 		return nil
 	}
-	return c.WriteError(403, "forbidden")
+	c.WriteErrorResponse(ErrPermissionForbidden)
+	return ErrPermissionForbidden
 }
 
 func (c *Parser) CheckAccess(role models.Role) error {
 	ctx := c.Request.Context()
 	perm, ok := ctx.Value("permissions").(models.UserResponse)
 	if !ok {
-		return c.WriteError(401, "unauthorized")
+		c.WriteErrorResponse(ErrPermissionUnauthorized)
+		return ErrPermissionUnauthorized
 	}
 	if perm.Role.GreaterEqual(role) {
 		return nil
 	}
-	return c.WriteError(403, "forbidden")
+	c.WriteErrorResponse(ErrPermissionForbidden)
+	return ErrPermissionForbidden
 }

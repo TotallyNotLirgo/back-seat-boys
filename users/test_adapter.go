@@ -79,6 +79,22 @@ func (tsa *TestServiceAdapter) GetUserByEmail(
 	return nil, nil
 }
 
+func (tsa *TestServiceAdapter) DeleteUser(id int) error {
+	if tsa.errors["DeleteUser"] {
+		return ErrTestServer
+	}
+	var user *userModel
+	var i int
+	for i, user = range tsa.users {
+		if user.id != id {
+			continue
+		}
+		break
+	}
+	tsa.users = append(tsa.users[:i], tsa.users[i+1:]...)
+	return nil
+}
+
 func (tsa *TestServiceAdapter) UpdateUser(
 	id int, email, password string, role models.Role,
 ) error {
