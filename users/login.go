@@ -13,6 +13,7 @@ import (
 
 type LoginServices interface {
 	GetUserByCredentials(email, password string) (*models.UserModel, error)
+	SetLogger(logger slog.Logger)
 }
 
 func Login(
@@ -20,6 +21,7 @@ func Login(
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
 	logger.Info("Login", slog.String("email", request.Email))
+    s.SetLogger(*logger)
 	password := fmt.Sprintf("%x", sha256.Sum256([]byte(request.Password)))
 	user, err := s.GetUserByCredentials(request.Email, password)
 	if err != nil {
