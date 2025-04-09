@@ -32,11 +32,12 @@ func main() {
 
 	r.Use(loggerMiddleware(*logger))
 	r.Use(authMiddleware())
-	f := EndpointFacade{services.NewServiceAdapter()}
+	f := EndpointFacade{services.NewServiceAdapter(*logger)}
 	r.POST("/api/login", f.login)
 	r.POST("/api/register", f.register)
 	r.PATCH("/api/users/:id", f.update)
 	r.DELETE("/api/users/:id", f.delete)
+	r.POST("/api/authorize/:token", f.authorize)
 	r.SetTrustedProxies([]string{"127.0.0.1"})
 	r.RunTLS(":8090", "cert/localhost.crt", "cert/localhost.key")
 }

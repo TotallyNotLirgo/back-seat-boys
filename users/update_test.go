@@ -112,9 +112,12 @@ func TestUpdateUserEmailCorrect(t *testing.T) {
 	if services.users[1].role != models.RoleNew {
 		t.Error("role was not changed")
 	}
-	if _, ok := services.tokens["new@email.com"]; !ok {
-		t.Error("email was not sent")
+	for _, id := range services.tokens {
+		if id == 2 {
+			return
+		}
 	}
+	t.Error("email was not sent")
 }
 
 func TestUpdateUserPasswordCorrect(t *testing.T) {

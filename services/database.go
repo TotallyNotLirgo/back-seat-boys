@@ -1,6 +1,8 @@
 package services
 
 import (
+	"log/slog"
+
 	"github.com/TotallyNotLirgo/back-seat-boys/models"
 )
 
@@ -12,17 +14,23 @@ type userModel struct {
 }
 
 type TestServiceAdapter struct {
+	logger slog.Logger
 	lastId int
 	users  []*userModel
 	errors map[string]bool
-	tokens map[string]string
+	tokens map[string]int
 }
 
-func NewServiceAdapter() *TestServiceAdapter {
+func NewServiceAdapter(logger slog.Logger) *TestServiceAdapter {
 	return &TestServiceAdapter{
+		logger: logger,
 		errors: make(map[string]bool),
-		tokens: make(map[string]string),
+		tokens: make(map[string]int),
 	}
+}
+
+func (tsa *TestServiceAdapter) SetLogger(logger slog.Logger) {
+	tsa.logger = logger
 }
 
 func (tsa *TestServiceAdapter) GetUserById(
@@ -118,7 +126,18 @@ func (tsa *TestServiceAdapter) InsertUser(
 	return tsa.lastId, nil
 }
 
-func (tsa *TestServiceAdapter) SendEmail(email, token string) error {
-	tsa.tokens[email] = token
+func (tsa *TestServiceAdapter) SendEmail(id int, token string) error {
+	tsa.tokens[token] = id
+	tsa.logger.Debug(token)
+	return nil
+}
+
+func (tsa *TestServiceAdapter) GetIdByToken(token string) (int, bool, error) {
+	id, ok := tsa.tokens[token]
+	return id, ok, nil
+}
+
+func (tsa *TestServiceAdapter) DeleteToken(token string) error {
+	delete(tsa.tokens, token)
 	return nil
 }

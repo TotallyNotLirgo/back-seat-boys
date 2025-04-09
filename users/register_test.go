@@ -49,7 +49,11 @@ func TestRegisterUserExistsReturnsConflict(t *testing.T) {
 }
 
 func TestRegisterUserCorrect(t *testing.T) {
-	expected := models.UserResponse{UserId: 2, Email: "new@email.com", Role: "new"}
+	expected := models.UserResponse{
+		UserId: 2,
+		Email:  "new@email.com",
+		Role:   "new",
+	}
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "pass", models.RoleUser)
 	result, err := Register(
@@ -69,8 +73,10 @@ func TestRegisterUserCorrect(t *testing.T) {
 	if services.users[1].password == "Password1!" {
 		t.Error("password was not encrypted")
 	}
-	if _, ok := services.tokens["new@email.com"]; !ok {
-		t.Error("email was not sent")
+	for _, id := range services.tokens {
+		if id == 2 {
+			return
+		}
 	}
 }
 

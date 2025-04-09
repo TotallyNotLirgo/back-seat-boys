@@ -15,7 +15,8 @@ import (
 type RegisterServices interface {
 	GetUserByEmail(email string) (*models.UserModel, error)
 	InsertUser(email, pass string, role models.Role) (int, error)
-	SendEmail(email, token string) error
+	SendEmail(id int, token string) error
+	SetLogger(logger slog.Logger)
 }
 
 func Register(
@@ -23,6 +24,7 @@ func Register(
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
 	logger.Info("Register", slog.String("email", request.Email))
+	s.SetLogger(*logger)
 
 	if err = IsPasswordValid(request.Password); err != nil {
 		logger.Info("invalid password")
@@ -47,7 +49,7 @@ func Register(
 		logger.Error("db error", slog.String("error", err.Error()))
 		return response, models.ErrServerError
 	}
-	err = s.SendEmail(request.Email, uuid.New().String())
+	err = s.SendEmail(id, uuid.New().String())
 	if err != nil {
 		logger.Error("email engine error", slog.String("error", err.Error()))
 		return response, models.ErrServerError

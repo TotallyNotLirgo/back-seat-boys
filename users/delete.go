@@ -12,6 +12,7 @@ import (
 type DeleteServices interface {
 	GetUserById(id int) (*models.UserModel, error)
 	DeleteUser(id int) error
+	SetLogger(logger slog.Logger)
 }
 
 func Delete(
@@ -19,6 +20,7 @@ func Delete(
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
 	logger.Info("Deleting", slog.Int("uid", id))
+	s.SetLogger(*logger)
 	found, err := s.GetUserById(id)
 	if err != nil {
 		logger.Error("db error", slog.String("error", err.Error()))

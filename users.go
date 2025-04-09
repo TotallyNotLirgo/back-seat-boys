@@ -115,3 +115,21 @@ func (f EndpointFacade) delete(c *gin.Context) {
 
 	p.JSON(200, response)
 }
+func (f EndpointFacade) authorize(c *gin.Context) {
+	var err error
+	var token string
+	var response models.UserResponse
+
+	p := parser.Parser{Context: c}
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("authorize")
+	token = c.Param("token")
+	response, err = users.Authorize(ctx, f.services, token)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
+
+	p.JSON(200, response)
+}
