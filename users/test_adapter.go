@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/TotallyNotLirgo/back-seat-boys/models"
 )
@@ -33,6 +34,9 @@ func NewServiceAdapter() TestServiceAdapter {
 		errors: make(map[string]bool),
 		tokens: make(map[string]int),
 	}
+}
+
+func (tsa *TestServiceAdapter) SetLogger(logger slog.Logger) {
 }
 
 func (tsa *TestServiceAdapter) insert(email, pass string, role models.Role) {

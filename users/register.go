@@ -24,7 +24,7 @@ func Register(
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
 	logger.Info("Register", slog.String("email", request.Email))
-    s.SetLogger(*logger)
+	s.SetLogger(*logger)
 
 	if err = IsPasswordValid(request.Password); err != nil {
 		logger.Info("invalid password")

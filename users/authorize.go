@@ -22,7 +22,7 @@ func Authorize(
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
 	logger.Info("Authorizing")
-    s.SetLogger(*logger)
+	s.SetLogger(*logger)
 	id, ok, err := s.GetIdByToken(token)
 	if err != nil {
 		logger.Error(err.Error())

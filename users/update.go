@@ -28,7 +28,7 @@ func Update(
 	var role models.Role
 	logger := slogctx.FromCtx(ctx)
 	logger.Info("Updating", slog.Int("uid", id))
-    s.SetLogger(*logger)
+	s.SetLogger(*logger)
 	found, err := s.GetUserById(id)
 	if err != nil {
 		logger.Error("db error", slog.String("error", err.Error()))

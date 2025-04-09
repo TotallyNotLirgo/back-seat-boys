@@ -30,7 +30,7 @@ func NewServiceAdapter(logger slog.Logger) *TestServiceAdapter {
 }
 
 func (tsa *TestServiceAdapter) SetLogger(logger slog.Logger) {
-    tsa.logger = logger
+	tsa.logger = logger
 }
 
 func (tsa *TestServiceAdapter) GetUserById(
