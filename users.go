@@ -28,7 +28,7 @@ func (f EndpointFacade) login(c *gin.Context) {
 		p.WriteErrorResponse(err)
 		return
 	}
-	err = p.WriteJWTCookie(response)
+	err = p.SetJWTCookie(response)
 	if err != nil {
 		logger.Error("could not encode JWT", slog.String("error", err.Error()))
 		p.WriteJSONMessage(500, "could not encode JWT")
@@ -37,6 +37,16 @@ func (f EndpointFacade) login(c *gin.Context) {
 
 	p.JSON(200, response)
 }
+
+func (f EndpointFacade) logout(c *gin.Context) {
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("logout")
+	p := parser.Parser{Context: c}
+	p.ResetJWTCookie()
+	p.JSON(200, map[string]string{"message": "ok"})
+}
+
 func (f EndpointFacade) register(c *gin.Context) {
 	var err error
 	var request models.UserRequest
@@ -55,6 +65,12 @@ func (f EndpointFacade) register(c *gin.Context) {
 	response, err = users.Register(ctx, f.services, request)
 	if err != nil {
 		p.WriteErrorResponse(err)
+		return
+	}
+	err = p.SetJWTCookie(response)
+	if err != nil {
+		logger.Error("could not encode JWT", slog.String("error", err.Error()))
+		p.WriteJSONMessage(500, "could not encode JWT")
 		return
 	}
 
