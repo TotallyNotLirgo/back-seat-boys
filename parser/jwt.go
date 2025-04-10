@@ -16,7 +16,7 @@ var (
 
 var secretKey = "mysecretkey"
 
-func (c Parser) WriteJWTCookie(response models.UserResponse) error {
+func (c Parser) SetJWTCookie(response models.UserResponse) error {
 	value, err := generateJWT(response)
 	if err != nil {
 		return err
@@ -26,14 +26,26 @@ func (c Parser) WriteJWTCookie(response models.UserResponse) error {
 		value,
 		int(time.Now().Add(365*24*time.Hour).Unix()),
 		"/",
-		"localhost",
+		"bake-roll",
 		true,
 		true,
 	)
 	return nil
 }
 
-func (c Parser) ReadJWTCookie(request *models.UserResponse) error {
+func (c Parser) ResetJWTCookie() {
+	c.SetCookie(
+		"JWT",
+		"",
+		int(time.Now().Add(365*24*time.Hour).Unix()),
+		"/",
+		"bake-roll",
+		true,
+		true,
+	)
+}
+
+func (c Parser) GetJWTCookie(request *models.UserResponse) error {
 	cookie, err := c.Cookie("JWT")
 	if err != nil {
 		return err
