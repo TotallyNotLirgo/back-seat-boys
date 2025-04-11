@@ -73,11 +73,12 @@ func TestRegisterUserCorrect(t *testing.T) {
 	if services.users[1].password == "Password1!" {
 		t.Error("password was not encrypted")
 	}
-	for _, id := range services.tokens {
+	for _, id := range services.tokens["Authorize"] {
 		if id == 2 {
 			return
 		}
 	}
+	t.Error("email was not sent")
 }
 
 func TestRegisterGetServerError(t *testing.T) {

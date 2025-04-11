@@ -20,7 +20,7 @@ func Login(
 	ctx context.Context, s LoginServices, request models.UserRequest,
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
-	logger.Info("Login", slog.String("email", request.Email))
+	logger.Info("login", slog.String("email", request.Email))
 	s.SetLogger(*logger)
 	password := fmt.Sprintf("%x", sha256.Sum256([]byte(request.Password)))
 	user, err := s.GetUserByCredentials(request.Email, password)

@@ -76,6 +76,75 @@ func (f EndpointFacade) register(c *gin.Context) {
 
 	p.JSON(200, response)
 }
+
+func (f EndpointFacade) authorize(c *gin.Context) {
+	var err error
+	var token string
+	var response models.UserResponse
+
+	p := parser.Parser{Context: c}
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("authorize")
+	token = c.Param("token")
+	response, err = users.Authorize(ctx, f.services, token)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
+
+	p.JSON(200, response)
+}
+
+func (f EndpointFacade) forgotPassword(c *gin.Context) {
+	var err error
+	var request models.EmailRequest
+	var response models.UserResponse
+
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("forgot password")
+	p := parser.Parser{Context: c}
+
+	if err = p.Unmarshal(&request); err != nil {
+		logger.Info(err.Error())
+		return
+	}
+
+	err = users.ForgotPassword(ctx, f.services, request.Email)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
+
+	p.JSON(200, response)
+}
+
+func (f EndpointFacade) temporaryLogin(c *gin.Context) {
+	var err error
+	var token string
+	var response models.UserResponse
+
+	p := parser.Parser{Context: c}
+	ctx := c.Request.Context()
+	logger := slogctx.FromCtx(ctx)
+	logger.Info("temporary login")
+	token = c.Param("token")
+	response, err = users.TemporaryLogin(ctx, f.services, token)
+	if err != nil {
+		p.WriteErrorResponse(err)
+		return
+	}
+	err = p.SetJWTCookie(response)
+	if err != nil {
+		logger.Error("could not encode JWT", slog.String("error", err.Error()))
+		p.WriteJSONMessage(500, "could not encode JWT")
+		return
+	}
+
+	p.JSON(200, response)
+}
+
 func (f EndpointFacade) update(c *gin.Context) {
 	var err error
 	var id int
@@ -124,24 +193,6 @@ func (f EndpointFacade) delete(c *gin.Context) {
 		return
 	}
 	response, err = users.Delete(ctx, f.services, id)
-	if err != nil {
-		p.WriteErrorResponse(err)
-		return
-	}
-
-	p.JSON(200, response)
-}
-func (f EndpointFacade) authorize(c *gin.Context) {
-	var err error
-	var token string
-	var response models.UserResponse
-
-	p := parser.Parser{Context: c}
-	ctx := c.Request.Context()
-	logger := slogctx.FromCtx(ctx)
-	logger.Info("authorize")
-	token = c.Param("token")
-	response, err = users.Authorize(ctx, f.services, token)
 	if err != nil {
 		p.WriteErrorResponse(err)
 		return
