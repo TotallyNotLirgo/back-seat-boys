@@ -9,21 +9,20 @@ import (
 	slogctx "github.com/veqryn/slog-context"
 )
 
-type AuthorizeServices interface {
+type TemporaryLoginServices interface {
 	GetIdByToken(token, bucket string) (int, bool, error)
 	DeleteToken(token, bucket string) error
-	UpdateUser(id int, email, password string, role models.Role) error
 	GetUserById(id int) (*models.UserModel, error)
 	SetLogger(logger slog.Logger)
 }
 
-func Authorize(
-	ctx context.Context, s AuthorizeServices, token string,
+func TemporaryLogin(
+	ctx context.Context, s TemporaryLoginServices, token string,
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
-	logger.Info("authorizing")
+	logger.Info("temporary login")
 	s.SetLogger(*logger)
-	id, ok, err := s.GetIdByToken(token, "Authorize")
+	id, ok, err := s.GetIdByToken(token, "TemporaryLogin")
 	if err != nil {
 		logger.Error(err.Error())
 		return response, models.ErrServerError
@@ -32,7 +31,7 @@ func Authorize(
 		logger.Info("token not found")
 		return response, errors.Join(models.ErrNotFound, ErrTokenNotFound)
 	}
-	err = s.DeleteToken(token, "Authorize")
+	err = s.DeleteToken(token, "TemporaryLogin")
 	if err != nil {
 		logger.Error(err.Error())
 		return response, models.ErrServerError
@@ -42,19 +41,8 @@ func Authorize(
 		logger.Error(err.Error())
 		return response, models.ErrServerError
 	}
-	if user.Role.GreaterEqual(models.RoleUser) {
-		response.Email = user.Email
-		response.UserId = user.UserId
-		response.Role = user.Role
-		return response, nil
-	}
-	err = s.UpdateUser(id, "", "", models.RoleUser)
-	if err != nil {
-		logger.Error(err.Error())
-		return response, models.ErrServerError
-	}
 	response.Email = user.Email
+	response.Role = user.Role
 	response.UserId = user.UserId
-	response.Role = models.RoleUser
 	return response, nil
 }

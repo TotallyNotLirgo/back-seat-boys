@@ -36,6 +36,8 @@ func main() {
 	f := EndpointFacade{services.NewServiceAdapter(*logger)}
 	r.POST("/api/login", f.login)
 	r.POST("/api/logout", f.logout)
+	r.POST("/api/forgot_password", f.forgotPassword)
+	r.POST("/api/temporary_login", f.temporaryLogin)
 	r.POST("/api/register", f.register)
 	r.PATCH("/api/users/:id", f.update)
 	r.DELETE("/api/users/:id", f.delete)

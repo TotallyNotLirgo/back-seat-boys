@@ -18,14 +18,16 @@ type TestServiceAdapter struct {
 	lastId int
 	users  []*userModel
 	errors map[string]bool
-	tokens map[string]int
+	tokens map[string]map[string]int
 }
 
 func NewServiceAdapter(logger slog.Logger) *TestServiceAdapter {
+	tokens := make(map[string]map[string]int)
+	tokens["TemporaryLogin"] = make(map[string]int)
+	tokens["Authorize"] = make(map[string]int)
 	return &TestServiceAdapter{
-		logger: logger,
 		errors: make(map[string]bool),
-		tokens: make(map[string]int),
+		tokens: tokens,
 	}
 }
 
@@ -126,18 +128,19 @@ func (tsa *TestServiceAdapter) InsertUser(
 	return tsa.lastId, nil
 }
 
-func (tsa *TestServiceAdapter) SendEmail(id int, token string) error {
-	tsa.tokens[token] = id
-	tsa.logger.Debug(token)
+func (tsa *TestServiceAdapter) SendEmail(id int, token, bucket string) error {
+	tsa.tokens[bucket][token] = id
 	return nil
 }
 
-func (tsa *TestServiceAdapter) GetIdByToken(token string) (int, bool, error) {
-	id, ok := tsa.tokens[token]
+func (tsa *TestServiceAdapter) GetIdByToken(
+	token, bucket string,
+) (int, bool, error) {
+	id, ok := tsa.tokens[bucket][token]
 	return id, ok, nil
 }
 
-func (tsa *TestServiceAdapter) DeleteToken(token string) error {
-	delete(tsa.tokens, token)
+func (tsa *TestServiceAdapter) DeleteToken(token, bucket string) error {
+	delete(tsa.tokens[bucket], token)
 	return nil
 }

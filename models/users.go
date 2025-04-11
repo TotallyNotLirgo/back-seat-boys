@@ -24,6 +24,10 @@ const (
 	RoleAdmin Role = "admin"
 )
 
+type EmailRequest struct {
+	Email string `json:"email"`
+}
+
 type UserRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

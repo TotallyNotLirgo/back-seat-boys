@@ -112,7 +112,7 @@ func TestUpdateUserEmailCorrect(t *testing.T) {
 	if services.users[1].role != models.RoleNew {
 		t.Error("role was not changed")
 	}
-	for _, id := range services.tokens {
+	for _, id := range services.tokens["Authorize"] {
 		if id == 2 {
 			return
 		}

@@ -26,7 +26,7 @@ func TestAuthorizeValidTokenReturnsNilChangingRole(t *testing.T) {
 	}
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleNew)
-	services.insert_token(1, "abcxyz")
+	services.insert_token(1, "abcxyz", "Authorize")
 	result, err := Authorize(ctx, &services, "abcxyz")
 	if err != nil {
 		t.Errorf("expected: %v, got: %v", nil, err)
@@ -50,7 +50,7 @@ func TestAuthorizeWillNotRevertRole(t *testing.T) {
 	}
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleAdmin)
-	services.insert_token(1, "abcxyz")
+	services.insert_token(1, "abcxyz", "Authorize")
 	result, err := Authorize(ctx, &services, "abcxyz")
 	if err != nil {
 		t.Errorf("expected: %v, got: %v", nil, err)
@@ -70,7 +70,7 @@ func TestAuthorizeGetByTokenServerError(t *testing.T) {
 	expected := models.ErrServerError
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleNew)
-	services.insert_token(1, "abcxyz")
+	services.insert_token(1, "abcxyz", "Authorize")
 	services.errors["GetIdByToken"] = true
 	_, result := Authorize(ctx, &services, "abcxyz")
 	if !errors.Is(result, expected) {
@@ -82,7 +82,7 @@ func TestAuthorizeDeleteTokenServerError(t *testing.T) {
 	expected := models.ErrServerError
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleNew)
-	services.insert_token(1, "abcxyz")
+	services.insert_token(1, "abcxyz", "Authorize")
 	services.errors["DeleteToken"] = true
 	_, result := Authorize(ctx, &services, "abcxyz")
 	if !errors.Is(result, expected) {
@@ -94,7 +94,7 @@ func TestAuthorizeUpdateServerError(t *testing.T) {
 	expected := models.ErrServerError
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleNew)
-	services.insert_token(1, "abcxyz")
+	services.insert_token(1, "abcxyz", "Authorize")
 	services.errors["UpdateUser"] = true
 	_, result := Authorize(ctx, &services, "abcxyz")
 	if !errors.Is(result, expected) {
@@ -106,7 +106,7 @@ func TestAuthorizeGetUserServerError(t *testing.T) {
 	expected := models.ErrServerError
 	ctx, services := PrepareTest()
 	services.insert("user@email.com", "Password1!", models.RoleNew)
-	services.insert_token(1, "abcxyz")
+	services.insert_token(1, "abcxyz", "Authorize")
 	services.errors["GetUserById"] = true
 	_, result := Authorize(ctx, &services, "abcxyz")
 	if !errors.Is(result, expected) {

@@ -16,7 +16,7 @@ type UpdateServices interface {
 	GetUserById(id int) (*models.UserModel, error)
 	GetUserByEmail(email string) (*models.UserModel, error)
 	UpdateUser(id int, email, password string, role models.Role) error
-	SendEmail(id int, token string) error
+	SendEmail(id int, token, bucket string) error
 	SetLogger(logger slog.Logger)
 }
 
@@ -27,7 +27,7 @@ func Update(
 	var password string
 	var role models.Role
 	logger := slogctx.FromCtx(ctx)
-	logger.Info("Updating", slog.Int("uid", id))
+	logger.Info("updating", slog.Int("uid", id))
 	s.SetLogger(*logger)
 	found, err := s.GetUserById(id)
 	if err != nil {
@@ -59,7 +59,7 @@ func Update(
 			logger.Info("user already exists")
 			return response, errors.Join(models.ErrConflict, ErrUserConflict)
 		}
-		err = s.SendEmail(id, uuid.New().String())
+		err = s.SendEmail(id, uuid.New().String(), "Authorize")
 		if err != nil {
 			logger.Error(
 				"email engine error",
