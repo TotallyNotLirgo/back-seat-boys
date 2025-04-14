@@ -10,10 +10,10 @@ import (
 )
 
 type AuthorizeServices interface {
-	GetIdByToken(token, bucket string) (int, bool, error)
+	GetIdByToken(token, bucket string) (uint, bool, error)
 	DeleteToken(token, bucket string) error
-	UpdateUser(id int, email, password string, role models.Role) error
-	GetUserById(id int) (*models.UserModel, error)
+	UpdateUser(id uint, email, password string, role models.Role) error
+	GetUserById(id uint) (*models.UserModel, error)
 	SetLogger(logger slog.Logger)
 }
 

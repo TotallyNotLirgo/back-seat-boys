@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/TotallyNotLirgo/back-seat-boys/services"
+	"github.com/TotallyNotLirgo/back-seat-boys/services/database"
 	"github.com/gin-gonic/gin"
 )
 

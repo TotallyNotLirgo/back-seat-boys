@@ -37,11 +37,11 @@ func (c *Parser) GetJSON() error {
 	return nil
 }
 
-func (c *Parser) GetPathId() (int, error) {
+func (c *Parser) GetPathId() (uint, error) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.WriteErrorResponse(ErrInvalidId)
 		return 0, err
 	}
-	return id, nil
+	return uint(id), nil
 }

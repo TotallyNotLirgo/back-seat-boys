@@ -10,16 +10,16 @@ import (
 )
 
 type DeleteServices interface {
-	GetUserById(id int) (*models.UserModel, error)
-	DeleteUser(id int) error
+	GetUserById(id uint) (*models.UserModel, error)
+	DeleteUser(id uint) error
 	SetLogger(logger slog.Logger)
 }
 
 func Delete(
-	ctx context.Context, s DeleteServices, id int,
+	ctx context.Context, s DeleteServices, id uint,
 ) (response models.UserResponse, err error) {
 	logger := slogctx.FromCtx(ctx)
-	logger.Info("Deleting", slog.Int("uid", id))
+	logger.Info("Deleting", slog.Int("uid", int(id)))
 	s.SetLogger(*logger)
 	found, err := s.GetUserById(id)
 	if err != nil {

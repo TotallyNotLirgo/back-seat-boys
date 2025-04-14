@@ -63,7 +63,7 @@ func (c Parser) GetJWTCookie(request *models.UserResponse) error {
 	if !ok || !token.Valid {
 		return ErrJWTClaims
 	}
-	request.UserId = int(claims["userId"].(float64))
+	request.UserId = uint(claims["userId"].(float64))
 	role, ok := claims["role"].(string)
 	if !ok {
 		return ErrJWTRole

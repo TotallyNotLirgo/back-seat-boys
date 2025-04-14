@@ -13,21 +13,21 @@ import (
 )
 
 type UpdateServices interface {
-	GetUserById(id int) (*models.UserModel, error)
+	GetUserById(id uint) (*models.UserModel, error)
 	GetUserByEmail(email string) (*models.UserModel, error)
-	UpdateUser(id int, email, password string, role models.Role) error
-	SendEmail(id int, token, bucket string) error
+	UpdateUser(id uint, email, password string, role models.Role) error
+	SendEmail(id uint, token, bucket string) error
 	SetLogger(logger slog.Logger)
 }
 
 func Update(
-	ctx context.Context, s UpdateServices, id int, request models.UserRequest,
+	ctx context.Context, s UpdateServices, id uint, request models.UserRequest,
 ) (response models.UserResponse, err error) {
 	var email string
 	var password string
 	var role models.Role
 	logger := slogctx.FromCtx(ctx)
-	logger.Info("updating", slog.Int("uid", id))
+	logger.Info("updating", slog.Int("uid", int(id)))
 	s.SetLogger(*logger)
 	found, err := s.GetUserById(id)
 	if err != nil {

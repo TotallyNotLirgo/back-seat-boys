@@ -16,23 +16,23 @@ var (
 )
 
 type userModel struct {
-	id       int
+	id       uint
 	email    string
 	password string
 	role     models.Role
 }
 
 type TestServiceAdapter struct {
-	lastId int
+	lastId uint
 	users  []*userModel
 	errors map[string]bool
-	tokens map[string]map[string]int
+	tokens map[string]map[string]uint
 }
 
 func NewServiceAdapter() TestServiceAdapter {
-	tokens := make(map[string]map[string]int)
-	tokens["TemporaryLogin"] = make(map[string]int)
-	tokens["Authorize"] = make(map[string]int)
+	tokens := make(map[string]map[string]uint)
+	tokens["TemporaryLogin"] = make(map[string]uint)
+	tokens["Authorize"] = make(map[string]uint)
 	return TestServiceAdapter{
 		errors: make(map[string]bool),
 		tokens: tokens,
@@ -48,12 +48,12 @@ func (tsa *TestServiceAdapter) insert(email, pass string, role models.Role) {
 	tsa.users = append(tsa.users, &userModel{tsa.lastId, email, pass, role})
 }
 
-func (tsa *TestServiceAdapter) insert_token(id int, token, bucket string) {
+func (tsa *TestServiceAdapter) insert_token(id uint, token, bucket string) {
 	tsa.tokens[bucket][token] = id
 }
 
 func (tsa *TestServiceAdapter) GetUserById(
-	id int,
+	id uint,
 ) (*models.UserModel, error) {
 	if tsa.errors["GetUserById"] {
 		return nil, ErrTestServer
@@ -90,7 +90,7 @@ func (tsa *TestServiceAdapter) GetUserByEmail(
 	return nil, nil
 }
 
-func (tsa *TestServiceAdapter) DeleteUser(id int) error {
+func (tsa *TestServiceAdapter) DeleteUser(id uint) error {
 	if tsa.errors["DeleteUser"] {
 		return ErrTestServer
 	}
@@ -107,7 +107,7 @@ func (tsa *TestServiceAdapter) DeleteUser(id int) error {
 }
 
 func (tsa *TestServiceAdapter) UpdateUser(
-	id int, email, password string, role models.Role,
+	id uint, email, password string, role models.Role,
 ) error {
 	if tsa.errors["UpdateUser"] {
 		return ErrTestServer
@@ -154,7 +154,7 @@ func (tsa *TestServiceAdapter) GetUserByCredentials(
 
 func (tsa *TestServiceAdapter) InsertUser(
 	email, pass string, role models.Role,
-) (int, error) {
+) (uint, error) {
 	if tsa.errors["InsertUser"] {
 		return 0, ErrTestServer
 	}
@@ -163,7 +163,7 @@ func (tsa *TestServiceAdapter) InsertUser(
 	return tsa.lastId, nil
 }
 
-func (tsa *TestServiceAdapter) SendEmail(id int, token, bucket string) error {
+func (tsa *TestServiceAdapter) SendEmail(id uint, token, bucket string) error {
 	if tsa.errors["SendEmail"] {
 		return errors.New("Server error")
 	}
@@ -171,7 +171,7 @@ func (tsa *TestServiceAdapter) SendEmail(id int, token, bucket string) error {
 	return nil
 }
 
-func (tsa *TestServiceAdapter) GetIdByToken(token, bucket string) (int, bool, error) {
+func (tsa *TestServiceAdapter) GetIdByToken(token, bucket string) (uint, bool, error) {
 	if tsa.errors["GetIdByToken"] {
 		return 0, false, errors.New("Server error")
 	}

@@ -14,8 +14,8 @@ import (
 
 type RegisterServices interface {
 	GetUserByEmail(email string) (*models.UserModel, error)
-	InsertUser(email, pass string, role models.Role) (int, error)
-	SendEmail(id int, token, bucket string) error
+	InsertUser(email, pass string, role models.Role) (uint, error)
+	SendEmail(id uint, token, bucket string) error
 	SetLogger(logger slog.Logger)
 }
 
