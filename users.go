@@ -147,7 +147,7 @@ func (f EndpointFacade) temporaryLogin(c *gin.Context) {
 
 func (f EndpointFacade) update(c *gin.Context) {
 	var err error
-	var id int
+	var id uint
 	var request models.UserRequest
 	var response models.UserResponse
 
@@ -177,7 +177,7 @@ func (f EndpointFacade) update(c *gin.Context) {
 }
 func (f EndpointFacade) delete(c *gin.Context) {
 	var err error
-	var id int
+	var id uint
 	var response models.UserResponse
 
 	p := parser.Parser{Context: c}

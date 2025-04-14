@@ -33,7 +33,7 @@ func authMiddleware() gin.HandlerFunc {
 			logger = logger.With(
 				slog.Group(
 					"permissions",
-					slog.Int("userId", perm.UserId),
+					slog.Int("userId", int(perm.UserId)),
 					slog.String("role", string(perm.Role)),
 				),
 			)

@@ -10,9 +10,9 @@ import (
 )
 
 type TemporaryLoginServices interface {
-	GetIdByToken(token, bucket string) (int, bool, error)
+	GetIdByToken(token, bucket string) (uint, bool, error)
 	DeleteToken(token, bucket string) error
-	GetUserById(id int) (*models.UserModel, error)
+	GetUserById(id uint) (*models.UserModel, error)
 	SetLogger(logger slog.Logger)
 }
 

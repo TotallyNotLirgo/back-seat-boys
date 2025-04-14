@@ -17,7 +17,7 @@ var (
 	)
 )
 
-func (c *Parser) CheckAccessAcceptOnlySelf(id int) error {
+func (c *Parser) CheckAccessAcceptOnlySelf(id uint) error {
 	ctx := c.Request.Context()
 	perm, ok := ctx.Value("permissions").(models.UserResponse)
 	if !ok {
@@ -31,7 +31,7 @@ func (c *Parser) CheckAccessAcceptOnlySelf(id int) error {
 	return ErrPermissionForbidden
 }
 
-func (c *Parser) CheckAccessAcceptSelf(id int, role models.Role) error {
+func (c *Parser) CheckAccessAcceptSelf(id uint, role models.Role) error {
 	ctx := c.Request.Context()
 	perm, ok := ctx.Value("permissions").(models.UserResponse)
 	if !ok {

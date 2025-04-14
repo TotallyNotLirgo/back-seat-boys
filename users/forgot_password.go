@@ -11,7 +11,7 @@ import (
 
 type ForgotPasswordServices interface {
 	SetLogger(logger slog.Logger)
-	SendEmail(id int, token, bucket string) error
+	SendEmail(id uint, token, bucket string) error
 	GetUserByEmail(email string) (*models.UserModel, error)
 }
 
