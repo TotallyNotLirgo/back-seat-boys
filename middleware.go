@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/TotallyNotLirgo/back-seat-boys/general"
 	"github.com/TotallyNotLirgo/back-seat-boys/models"
 	"github.com/TotallyNotLirgo/back-seat-boys/parser"
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,7 @@ func authMiddleware() gin.HandlerFunc {
 
 func loggerMiddleware(logger slog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		l := logger.With("hash", getRandomHash())
+		l := logger.With("hash", general.GetRandomHash())
 		ctx := slogctx.NewCtx(c.Request.Context(), l)
 		c.Request = c.Request.WithContext(ctx)
 

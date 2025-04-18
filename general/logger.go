@@ -1,4 +1,4 @@
-package main
+package general
 
 import (
 	"crypto/sha256"
@@ -11,7 +11,7 @@ import (
 	"github.com/MatusOllah/slogcolor"
 )
 
-func getDevLogger() (*slog.Logger, func() error) {
+func GetDevLogger() (*slog.Logger, func() error) {
 	options := slogcolor.DefaultOptions
 	options.Level = slog.LevelDebug
 	logger := slog.New(
@@ -20,7 +20,7 @@ func getDevLogger() (*slog.Logger, func() error) {
 	return logger, func() error { return nil }
 }
 
-func getProdLogger() (*slog.Logger, func() error) {
+func GetProdLogger() (*slog.Logger, func() error) {
 	f, err := os.OpenFile("log.json", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
 	if err != nil {
 		panic(err)
@@ -29,7 +29,7 @@ func getProdLogger() (*slog.Logger, func() error) {
 	return logger, f.Close
 }
 
-func getRandomHash() string {
+func GetRandomHash() string {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, uint64(time.Now().UnixNano()))
 	hash := sha256.Sum256(b)
