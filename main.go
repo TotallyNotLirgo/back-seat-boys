@@ -3,8 +3,8 @@ package main
 import (
 	"io"
 	"log/slog"
-	"os"
 
+	"github.com/TotallyNotLirgo/back-seat-boys/general"
 	"github.com/TotallyNotLirgo/back-seat-boys/services/database"
 	"github.com/gin-gonic/gin"
 )
@@ -13,20 +13,19 @@ type EndpointFacade struct {
 	services *services.TestServiceAdapter
 }
 
-var appEnv = os.Getenv("APP_ENV")
-
 func main() {
+	config := general.GetConfig()
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
 	r := gin.New()
 
 	var logger *slog.Logger
 	var closer func() error
-	switch appEnv {
+	switch config.APP_ENV {
 	case "PROD":
-		logger, closer = getProdLogger()
+		logger, closer = general.GetProdLogger()
 	default:
-		logger, closer = getDevLogger()
+		logger, closer = general.GetDevLogger()
 	}
 	defer closer()
 
@@ -42,6 +41,6 @@ func main() {
 	r.PATCH("/api/users/:id", f.update)
 	r.DELETE("/api/users/:id", f.delete)
 	r.POST("/api/authorize/:token", f.authorize)
-	r.SetTrustedProxies([]string{"127.0.0.1"})
-	r.RunTLS(":8090", "cert/bake-roll.crt", "cert/bake-roll.key")
+	r.SetTrustedProxies([]string{config.TRUSTED_PROXIES})
+	r.RunTLS(config.PORT, config.CERT_FILE, config.KEY_FILE)
 }
